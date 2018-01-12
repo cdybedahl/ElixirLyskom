@@ -34,8 +34,9 @@ defmodule Lyskom.Socket do
 
   ## Handle random messages
 
-  def handle_info(msg, state) do
+  def handle_info({:tcp, _port, msg}, state = %{socket: socket}) do
     Logger.info("Got from server: " <> inspect(msg))
+    :ok = :inet.setopts(socket, active: :once)
     {:noreply, state}
   end
 
