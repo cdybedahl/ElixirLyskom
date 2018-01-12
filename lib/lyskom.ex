@@ -1,18 +1,9 @@
 defmodule Lyskom do
-  @moduledoc """
-  Documentation for Lyskom.
-  """
 
-  @doc """
-  Hello world.
+  @server Lyskom.Server
 
-  ## Examples
-
-      iex> Lyskom.hello
-      :world
-
-  """
-  def hello do
-    :world
+  def login(name, password) do
+    GenServer.call(@server, {:login, name, password})
   end
+
 end

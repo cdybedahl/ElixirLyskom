@@ -16,7 +16,7 @@ defmodule Lyskom.MixProject do
     [
       extra_applications: [:logger],
       mod: {Lyskom.Application, []},
-      env: [server: 'kom.lysator.liu.se', port: 4894]
+      env: [server: %{host: 'kom.lysator.liu.se', port: 4894}]
     ]
   end
 

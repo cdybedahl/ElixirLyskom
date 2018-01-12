@@ -10,6 +10,9 @@ defmodule Lyskom.Application do
     children = [
       # Starts a worker by calling: Lyskom.Worker.start_link(arg)
       # {Lyskom.Worker, arg},
+      Lyskom.Server,
+      Lyskom.Socket,
+      Lyskom.Cache
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
