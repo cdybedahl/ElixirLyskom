@@ -11,7 +11,7 @@ defmodule Lyskom.Application do
       # Starts a worker by calling: Lyskom.Worker.start_link(arg)
       # {Lyskom.Worker, arg},
       Lyskom.Server,
-      Lyskom.Socket,
+      # Lyskom.Socket,
       Lyskom.Cache
     ]
 
