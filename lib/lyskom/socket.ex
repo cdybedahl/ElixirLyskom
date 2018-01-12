@@ -11,7 +11,10 @@ defmodule Lyskom.Socket do
 
   def init(state) do
     %{host: host, port: port} = state
-    {:ok, socket} = :gen_tcp.connect(host, port, [:binary, active: :once])
+    {:ok, socket} = :gen_tcp.connect(host, port, [:binary, active: false])
+    :ok = :gen_tcp.send(socket, "A6HElixir")
+    {:ok, "LysKOM\n"} = :gen_tcp.recv(socket,0)
+    :ok = :inet.setopts(socket, active: :once)
     {:ok, Map.put(state, :socket, socket)}
   end
 
