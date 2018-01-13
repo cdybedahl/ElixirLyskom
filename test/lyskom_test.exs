@@ -35,4 +35,22 @@ defmodule LyskomTest do
     assert rest == ""
   end
 
+  test "Split integer" do
+    {type, rest} = Tokenize.next_token("4711")
+    assert type == :incomplete
+
+    {n, rest} = Tokenize.continue_token("42\n", rest)
+    assert n == 471142
+    assert rest == "\n"
+  end
+
+  test "Split Hollerith string" do
+    {type, rest} = Tokenize.next_token("10H12345")
+    assert type == :incomplete
+
+    {str, rest} = Tokenize.continue_token("12345 ", rest)
+    assert str == "1234512345"
+    assert rest == " "
+  end
+
 end

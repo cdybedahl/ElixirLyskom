@@ -4,8 +4,12 @@ defmodule Lyskom.Prot_A.Tokenize do
     _next_token(:start, bin)
   end
 
-  def continue_token(_bin, _state) do
-    # TODO
+  def continue_token(bin, {:integer, acc}) do
+    _next_token(:integer, bin, acc)
+  end
+
+  def continue_token(bin, {:hollerith, n, acc}) do
+    _next_token(:hollerith, n, bin, acc)
   end
 
   # Protocol Error
