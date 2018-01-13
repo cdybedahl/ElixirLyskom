@@ -16,8 +16,7 @@ defmodule Lyskom.Socket do
 
   ### Callbacks
 
-  def init(state) do
-    %{host: host, port: port} = state
+  def init(state = %{host: host, port: port}) do
     {:ok, socket} = :gen_tcp.connect(host, port, [:binary, active: false])
     :ok = :gen_tcp.send(socket, "A6HElixir")
     {:ok, "LysKOM\n"} = :gen_tcp.recv(socket,0)
@@ -34,8 +33,8 @@ defmodule Lyskom.Socket do
 
   ## Handle random messages
 
-  def handle_info({:tcp, _port, msg}, state = %{socket: socket}) do
-    Logger.info("Got from server: " <> inspect(msg))
+  def handle_info({:tcp, socket, msg}, state = %{socket: socket}) do
+    Lyskom.Parser.incoming(msg)
     :ok = :inet.setopts(socket, active: :once)
     {:noreply, state}
   end

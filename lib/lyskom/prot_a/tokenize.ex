@@ -27,6 +27,11 @@ defmodule Lyskom.Prot_A.Tokenize do
     {:fail, tail}
   end
 
+  # Asynchronous message
+  def _next_token(:start, << ":", tail::binary>>) do
+    {:async, tail}
+  end
+
   # Start of an array
   def _next_token(:start, << "{", tail::binary >>) do
     {:arraystart, tail}

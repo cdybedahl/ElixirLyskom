@@ -11,6 +11,10 @@ defmodule Lyskom.Server do
     GenServer.start_link(@me, :no_args, name: @me)
   end
 
+  def incoming(msg) do
+    Logger.info("Got a message: #{inspect msg}")
+  end
+
   ### Callbacks
 
   def init(:no_args) do

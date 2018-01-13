@@ -12,6 +12,7 @@ defmodule Lyskom.Application do
       # {Lyskom.Worker, arg},
       Lyskom.Server,
       Lyskom.Socket,
+      Lyskom.Parser,
       Lyskom.Cache
     ]
 
