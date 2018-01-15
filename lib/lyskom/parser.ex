@@ -56,6 +56,7 @@ defmodule Lyskom.Parser do
 
   defp process_tokens(state = %{tokens: list}) do
     list = Enum.reverse(list)
+    list = process_arrays(list)
     index = Enum.find_index(list, fn item -> item == :msgend end)
     case index do
       nil ->
@@ -66,6 +67,36 @@ defmodule Lyskom.Parser do
         state = put_in state.tokens, Enum.reverse(list)
         process_tokens(state)
     end
+  end
+
+  @doc """
+  process_arrays walks through a list of items and turns Protocol A arrays into
+  lists of lists of elements.
+  """
+  def process_arrays(list) do
+    Enum.reverse _process_arrays(list,[])
+  end
+
+  defp _process_arrays([], acc) do
+    acc
+  end
+
+  defp _process_arrays([ 0, :arrayempty | tail], acc) do
+    _process_arrays(tail, [[]|acc])
+  end
+
+  defp _process_arrays([ n, :arraystart | tail], acc) when is_integer(n) do
+    tail = process_arrays(tail)
+    index_end = Enum.find_index(tail, fn item -> item == :arrayend end)
+    {array, rest} = Enum.split(tail, index_end)
+    item_length = div(Enum.count(array),n)
+    array = Enum.chunk_every(array, item_length)
+    [:arrayend | rest] = rest
+    _process_arrays(rest, [array|acc])
+  end
+
+  defp _process_arrays([head|tail], acc) do
+    _process_arrays(tail, [head|acc])
   end
 
 end
