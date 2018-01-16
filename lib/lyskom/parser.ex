@@ -62,7 +62,8 @@ defmodule Lyskom.Parser do
       nil ->
         state
       _ ->
-        {msg, list} = Enum.split(list, index+1)
+        {msg, list} = Enum.split(list, index)
+        [:msgend|list] = list
         Lyskom.Server.incoming(msg)
         state = put_in state.tokens, Enum.reverse(list)
         process_tokens(state)

@@ -24,7 +24,7 @@ defmodule Lyskom.Prot_A.Tokenize do
 
   # Failure reply
   def _next_token(:start, << "%", tail::binary >>) do
-    {:fail, tail}
+    {:failure, tail}
   end
 
   # Asynchronous message

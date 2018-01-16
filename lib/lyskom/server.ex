@@ -23,8 +23,8 @@ defmodule Lyskom.Server do
   end
 
   ## Handle calls
-  def handle_call({:login, id_number, password}, from, state = %{next_call_id: next_id}) do
-    prot_a_string = "#{next_id} 62 #{id_number} #{hollerith(password)}\n"
+  def handle_call({:login, id_number, password, invisible}, from, state = %{next_call_id: next_id}) do
+    prot_a_string = "#{next_id} 62 #{id_number} #{hollerith(password)} #{boolean(invisible)}\n"
     Logger.info("Sending: " <> prot_a_string)
     state = put_in state.next_call_id, next_id + 1
     state = put_in state.pending[next_id], {:login, from}
@@ -38,15 +38,39 @@ defmodule Lyskom.Server do
     {:noreply, state}
   end
 
+  def handle_cast({:incoming, [type, id | args]}, state) do
+    {call, from} = Map.fetch!(state.pending, id)
+    state = put_in(state.pending, Map.delete(state.pending, id))
+    process_response(call, type, from, args)
+    {:noreply, state}
+  end
+
   ## Handle random messages
   def handle_info(something, state) do
     Logger.info "Got message: #{inspect(something)}"
     {:noreply, state}
   end
 
+  ## Processing responses. Maybe should be in a separate module.
+  def process_response(:login, :success, from, []) do
+    GenServer.reply(from,:ok)
+  end
+
+  def process_response(:login, :failure, from, args) do
+    GenServer.reply(from,{:error, args})
+  end
+
   # Does not belong here. Move to types file later.
   def hollerith(str) do
     "#{String.length(str)}H#{str}"
+  end
+
+  def boolean(true) do
+    1
+  end
+
+  def boolean(false) do
+    0
   end
 
 end
