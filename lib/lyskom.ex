@@ -2,8 +2,8 @@ defmodule Lyskom do
 
   @server Lyskom.Server
 
-  def login(name, password) do
-    GenServer.call(@server, {:login, name, password}, :infinity)
+  def login(id_number, password) do
+    GenServer.call(@server, {:login, id_number, password}, :infinity)
   end
 
 end

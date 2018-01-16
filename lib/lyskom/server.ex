@@ -12,7 +12,8 @@ defmodule Lyskom.Server do
   end
 
   def incoming(msg) do
-    Logger.info("Got a message: #{inspect msg}")
+    Logger.debug("Got a message: #{inspect msg}")
+    GenServer.cast(@me, {:incoming, msg})
   end
 
   ### Callbacks
@@ -22,23 +23,30 @@ defmodule Lyskom.Server do
   end
 
   ## Handle calls
-  # FIXME: Temporary thing to try out the wait-until-later method.
-  def handle_call({:login, name, password}, from, state = %{next_call_id: next_id}) do
-    Logger.info("#{next_id} 63 #{name} #{password}\n")
+  def handle_call({:login, id_number, password}, from, state = %{next_call_id: next_id}) do
+    prot_a_string = "#{next_id} 62 #{id_number} #{hollerith(password)}\n"
+    Logger.info("Sending: " <> prot_a_string)
     state = put_in state.next_call_id, next_id + 1
     state = put_in state.pending[next_id], {:login, from}
-    Process.send_after(@me, :reply, 10000)
+    Lyskom.Socket.send(prot_a_string)
+    {:noreply, state}
+  end
+
+  ## Handle casts
+  def handle_cast({:incoming, [:async, argcount, type | args]}, state) do
+    Logger.info("Got async message type #{type} with #{argcount} arguments (#{inspect(args)}).")
     {:noreply, state}
   end
 
   ## Handle random messages
-  # FIXME: Other half of temporary thing
-  def handle_info(:reply, state) do
-    Logger.info "Got message :reply"
-    for {call, from} <- Map.values(state.pending) do
-      GenServer.reply(from, call)
-    end
-    {:noreply, %{ state | pending: %{}}}
+  def handle_info(something, state) do
+    Logger.info "Got message: #{inspect(something)}"
+    {:noreply, state}
+  end
+
+  # Does not belong here. Move to types file later.
+  def hollerith(str) do
+    "#{String.length(str)}H#{str}"
   end
 
 end
