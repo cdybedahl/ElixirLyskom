@@ -21,6 +21,7 @@ defmodule Lyskom.Socket do
     :ok = :gen_tcp.send(socket, "A6HElixir")
     {:ok, "LysKOM\n"} = :gen_tcp.recv(socket,0)
     :ok = :inet.setopts(socket, active: :once)
+    Logger.debug("Connection to server established.")
     {:ok, Map.put(state, :socket, socket)}
   end
 
@@ -28,14 +29,14 @@ defmodule Lyskom.Socket do
 
   def handle_call({:send, msg}, _from, state = %{socket: socket}) do
     :ok = :gen_tcp.send(socket,msg)
-    Logger.debug("Sent: #{msg}")
+    # Logger.debug("Sent: #{msg}")
     {:reply, :ok, state}
   end
 
   ## Handle random messages
 
   def handle_info({:tcp, socket, msg}, state = %{socket: socket}) do
-    Logger.debug("Incoming: #{msg}")
+    # Logger.debug("Incoming: #{msg}")
     Lyskom.Parser.incoming(msg)
     :ok = :inet.setopts(socket, active: :once)
     {:noreply, state}

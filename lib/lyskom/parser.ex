@@ -39,8 +39,10 @@ defmodule Lyskom.Parser do
   defp process_data(%{data: bin, tokens: t, incomplete: nil}) do
     {next, rest} = Tokenize.next_token(bin)
     case next do
-      :incomplete -> process_data(%{data: "", tokens: t, incomplete: rest})
-      _ -> process_data(%{data: rest, tokens: [next|t], incomplete: nil})
+      :incomplete ->
+        process_data(%{data: "", tokens: t, incomplete: rest})
+      _ ->
+        process_data(%{data: rest, tokens: [next|t], incomplete: nil})
     end
   end
 
@@ -56,7 +58,6 @@ defmodule Lyskom.Parser do
 
   defp process_tokens(state = %{tokens: list}) do
     list = Enum.reverse(list)
-    list = process_arrays(list)
     index = Enum.find_index(list, fn item -> item == :msgend end)
     case index do
       nil ->
@@ -64,6 +65,7 @@ defmodule Lyskom.Parser do
       _ ->
         {msg, list} = Enum.split(list, index)
         [:msgend|list] = list
+        msg = process_arrays(msg)
         Lyskom.Server.incoming(msg)
         state = put_in state.tokens, Enum.reverse(list)
         process_tokens(state)
