@@ -28,25 +28,28 @@ defmodule Lyskom.Server do
   def handle_call(
         {:login, id_number, password, invisible},
         from,
-        state = %{next_call_id: next_id}
+        state
       ) do
-    prot_a_string = "#{next_id} 62 #{id_number} #{hollerith(password)} #{boolean(invisible)}\n"
-    state = add_call_to_state(state, {:login, from})
-    Lyskom.Socket.send(prot_a_string)
-    {:noreply, state}
+    prot_a_call(:login, 62, from, [id_number, hollerith(password), boolean(invisible)], state)
   end
 
-  def handle_call({:logout}, from, state = %{next_call_id: next_id}) do
-    prot_a_string = "#{next_id} 1\n"
-    state = add_call_to_state(state, {:logout, from})
-    Lyskom.Socket.send(prot_a_string)
-    {:noreply, state}
+  def handle_call({:logout}, from, state) do
+    prot_a_call(:logout, 1, from, [], state)
   end
 
-  # Helper function
+  # Helper functions
   def add_call_to_state(state = %{next_call_id: next_id}, data) do
     state = put_in(state.next_call_id, next_id + 1)
     put_in(state.pending[next_id], data)
+  end
+
+  def prot_a_call(call_type, call_no, from, args, state = %{next_call_id: next_id}) do
+    [next_id, call_no | args]
+    |> Enum.join(" ")
+    |> Kernel.<>("\n")
+    |> Lyskom.Socket.send()
+
+    {:noreply, add_call_to_state(state, {call_type, from})}
   end
 
   ## Handle casts
