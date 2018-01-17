@@ -1,5 +1,4 @@
 defmodule Lyskom do
-
   @server Lyskom.Server
 
   def login(id_number, password, invisible \\ false) do
@@ -9,5 +8,4 @@ defmodule Lyskom do
   def logout do
     GenServer.call(@server, {:logout}, :infinity)
   end
-
 end

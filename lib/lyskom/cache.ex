@@ -12,5 +12,4 @@ defmodule Lyskom.Cache do
   def init(:no_args) do
     {:ok, %{}}
   end
-
 end

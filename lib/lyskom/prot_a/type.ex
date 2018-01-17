@@ -1,5 +1,4 @@
 defmodule Lyskom.Prot_A.Type do
-
   defmodule AuxItem do
     defstruct [:no, :tag, :creator, :created_at, :flags, :inherit_limit, :data]
   end
@@ -21,5 +20,4 @@ defmodule Lyskom.Prot_A.Type do
   def boolean(false) do
     0
   end
-
 end
