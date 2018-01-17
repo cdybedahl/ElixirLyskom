@@ -2,6 +2,8 @@ defmodule Lyskom.Server do
   use GenServer
 
   require Logger
+  import Lyskom.Prot_A.Type
+  import Lyskom.Prot_A.Error
 
   @me __MODULE__
 
@@ -25,11 +27,22 @@ defmodule Lyskom.Server do
   ## Handle calls
   def handle_call({:login, id_number, password, invisible}, from, state = %{next_call_id: next_id}) do
     prot_a_string = "#{next_id} 62 #{id_number} #{hollerith(password)} #{boolean(invisible)}\n"
-    Logger.info("Sending: " <> prot_a_string)
-    state = put_in state.next_call_id, next_id + 1
-    state = put_in state.pending[next_id], {:login, from}
+    state = add_call_to_state(state, {:login, from})
     Lyskom.Socket.send(prot_a_string)
     {:noreply, state}
+  end
+
+  def handle_call({:logout}, from, state = %{next_call_id: next_id}) do
+    prot_a_string = "#{next_id} 1\n"
+    state = add_call_to_state(state, {:logout, from})
+    Lyskom.Socket.send(prot_a_string)
+    {:noreply, state}
+  end
+
+  # Helper function
+  def add_call_to_state(state = %{next_call_id: next_id}, data) do
+    state = put_in state.next_call_id, next_id + 1
+    put_in state.pending[next_id], data
   end
 
   ## Handle casts
@@ -56,21 +69,12 @@ defmodule Lyskom.Server do
     GenServer.reply(from,:ok)
   end
 
-  def process_response(:login, :failure, from, args) do
-    GenServer.reply(from,{:error, args})
+  def process_response(:login, :failure, from, [code | args]) do
+    GenServer.reply(from,{:error, error_code(code), args})
   end
 
-  # Does not belong here. Move to types file later.
-  def hollerith(str) do
-    "#{String.length(str)}H#{str}"
-  end
-
-  def boolean(true) do
-    1
-  end
-
-  def boolean(false) do
-    0
+  def process_response(:logout, :success, from, []) do
+    GenServer.reply(from, :ok)
   end
 
 end
