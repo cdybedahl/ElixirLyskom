@@ -11,10 +11,10 @@ defmodule LyskomTest do
     assert type == :success
 
     {n, rest} = Tokenize.next_token(rest)
-    assert n == 1
+    assert n == '1'
 
     {n, rest} = Tokenize.next_token(rest)
-    assert n == 17
+    assert n == '17'
 
     {n, rest} = Tokenize.next_token(rest)
     assert n == :arraystart
@@ -23,10 +23,10 @@ defmodule LyskomTest do
     assert n == "Calle Dybedahl (on a mission from Goddess)"
 
     {n, rest} = Tokenize.next_token(rest)
-    assert n == 1001
+    assert n == '1001'
 
     {n, rest} = Tokenize.next_token(rest)
-    assert n == 70
+    assert n == '70'
 
     {n, rest} = Tokenize.next_token(rest)
     assert n == :arrayend
@@ -42,7 +42,7 @@ defmodule LyskomTest do
     assert type == :incomplete
 
     {n, rest} = Tokenize.continue_token("42\n", rest)
-    assert n == 471_142
+    assert n == '471142'
     assert rest == "\n"
   end
 
@@ -58,20 +58,20 @@ defmodule LyskomTest do
   test "Array parsing" do
     list = [
       :start,
-      0,
+      '0',
       :arrayempty,
-      17,
-      3,
+      '17',
+      '3',
       :arraystart,
-      1,
-      2,
-      3,
-      4,
-      5,
-      6,
-      7,
-      8,
-      9,
+      '1',
+      '2',
+      '3',
+      '4',
+      '5',
+      '6',
+      '7',
+      '8',
+      '9',
       :arrayend,
       :msgend
     ]
@@ -79,25 +79,25 @@ defmodule LyskomTest do
     parsed = Lyskom.Parser.process_arrays(list)
     assert Enum.at(parsed, 0) == :start
     assert Enum.at(parsed, 1) == []
-    assert parsed |> Enum.at(3) |> Enum.at(0) == [1, 2, 3]
+    assert parsed |> Enum.at(3) |> Enum.at(0) == ['1', '2', '3']
     assert List.last(parsed) == :msgend
     assert Enum.count(parsed) == 5
   end
 
   test "More array parsing" do
-    list = [:start, 1, :arraystart, 17, :arrayend, :msgend]
+    list = [:start, '1', :arraystart, '17', :arrayend, :msgend]
     parsed = Lyskom.Parser.process_arrays(list)
-    assert parsed == [:start, [[17]], :msgend]
+    assert parsed == [:start, [['17']], :msgend]
   end
 
   test "Nested array parsing" do
     list = [
       :start,
       :level1,
-      1,
+      '1',
       :arraystart,
       :inner,
-      2,
+      '2',
       :arraystart,
       :foo,
       :bar,
