@@ -8,4 +8,8 @@ defmodule Lyskom do
   def logout do
     GenServer.call(@server, {:logout}, :infinity)
   end
+
+  def lookup_z_name(name, want_pers \\ true, want_confs \\ true) do
+    GenServer.call(@server, {:lookup_z_name, name, want_pers, want_confs}, :infinity)
+  end
 end

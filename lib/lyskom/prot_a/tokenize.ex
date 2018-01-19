@@ -62,12 +62,12 @@ defmodule Lyskom.Prot_A.Tokenize do
   end
 
   def _next_token(:integer, <<" ", tail::binary>>, acc) do
-    n = acc |> Enum.reverse() |> List.to_integer()
+    n = acc |> Enum.reverse()
     {n, tail}
   end
 
   def _next_token(:integer, bin = <<"\n", _tail::binary>>, acc) do
-    n = acc |> Enum.reverse() |> List.to_integer()
+    n = acc |> Enum.reverse()
     {n, bin}
   end
 

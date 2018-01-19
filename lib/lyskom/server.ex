@@ -3,6 +3,7 @@ defmodule Lyskom.Server do
 
   require Logger
   import Lyskom.Prot_A.Type
+  alias Lyskom.Prot_A.Type
   import Lyskom.Prot_A.Error
 
   @me __MODULE__
@@ -14,7 +15,7 @@ defmodule Lyskom.Server do
   end
 
   def incoming(msg) do
-    Logger.debug("Got a message: #{inspect(msg)}")
+    # Logger.debug("Got a message: #{inspect(msg)}")
     GenServer.cast(@me, {:incoming, msg})
   end
 
@@ -35,6 +36,16 @@ defmodule Lyskom.Server do
 
   def handle_call({:logout}, from, state) do
     prot_a_call(:logout, 1, from, [], state)
+  end
+
+  def handle_call({:lookup_z_name, name, want_pers, want_confs}, from, state) do
+    prot_a_call(
+      :lookup_z_name,
+      76,
+      from,
+      [hollerith(name), boolean(want_pers), boolean(want_confs)],
+      state
+    )
   end
 
   # Helper functions
@@ -59,6 +70,7 @@ defmodule Lyskom.Server do
   end
 
   def handle_cast({:incoming, [type, id | args]}, state) do
+    id = List.to_integer(id)
     {call, from} = Map.fetch!(state.pending, id)
     state = put_in(state.pending, Map.delete(state.pending, id))
     process_response(call, type, from, args)
@@ -82,5 +94,9 @@ defmodule Lyskom.Server do
 
   def process_response(:logout, :success, from, []) do
     GenServer.reply(from, :ok)
+  end
+
+  def process_response(:lookup_z_name, :success, from, [infolist]) do
+    GenServer.reply(from, Enum.map(infolist, fn c -> Type.ConfZInfo.new(c) end))
   end
 end

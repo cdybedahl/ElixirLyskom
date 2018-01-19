@@ -88,11 +88,12 @@ defmodule Lyskom.Parser do
     acc
   end
 
-  defp _process_arrays([0, :arrayempty | tail], acc) do
+  defp _process_arrays(['0', :arrayempty | tail], acc) do
     _process_arrays(tail, [[] | acc])
   end
 
-  defp _process_arrays([n, :arraystart | tail], acc) when is_integer(n) do
+  defp _process_arrays([n, :arraystart | tail], acc) do
+    n = List.to_integer(n)
     tail = process_arrays(tail)
     index_end = Enum.find_index(tail, fn item -> item == :arrayend end)
     {array, rest} = Enum.split(tail, index_end)
