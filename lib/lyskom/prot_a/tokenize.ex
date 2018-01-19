@@ -1,4 +1,4 @@
-defmodule Lyskom.Prot_A.Tokenize do
+defmodule Lyskom.ProtA.Tokenize do
   def next_token(bin) do
     _next_token(:start, bin)
   end

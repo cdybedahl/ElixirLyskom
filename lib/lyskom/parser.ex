@@ -2,7 +2,7 @@ defmodule Lyskom.Parser do
   use GenServer
   require Logger
 
-  alias Lyskom.Prot_A.Tokenize
+  alias Lyskom.ProtA.Tokenize
 
   @me __MODULE__
 

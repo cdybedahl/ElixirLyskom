@@ -1,4 +1,4 @@
-defmodule Lyskom.Prot_A.Type do
+defmodule Lyskom.ProtA.Type do
   alias __MODULE__
 
   defmodule AuxItem do

@@ -2,7 +2,7 @@ defmodule LyskomTest do
   use ExUnit.Case
   doctest Lyskom
 
-  alias Lyskom.Prot_A.Tokenize
+  alias Lyskom.ProtA.Tokenize
 
   test "Message to tokens" do
     {type, rest} =

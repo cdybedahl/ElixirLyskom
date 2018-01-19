@@ -2,9 +2,9 @@ defmodule Lyskom.Server do
   use GenServer
 
   require Logger
-  import Lyskom.Prot_A.Type
-  alias Lyskom.Prot_A.Type
-  import Lyskom.Prot_A.Error
+  import Lyskom.ProtA.Type
+  alias Lyskom.ProtA.Type
+  import Lyskom.ProtA.Error
 
   @me __MODULE__
 

@@ -1,4 +1,4 @@
-defmodule Lyskom.Prot_A.Error do
+defmodule Lyskom.ProtA.Error do
   def error_code(0), do: :no_error
   def error_code(2), do: :not_implemented
   def error_code(3), do: :obsolete_call
