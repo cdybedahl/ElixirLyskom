@@ -70,9 +70,9 @@ defmodule Lyskom.ProtA.Type do
   end
 
   defmodule SessionFlags do
-    defstruct [invisible: false, user_active_used: false]
+    defstruct invisible: false, user_active_used: false
 
-    def new([invis, used, _,_,_,_,_,_]) do
+    def new([invis, used, _, _, _, _, _, _]) do
       %Type.SessionFlags{
         invisible: invis,
         user_active_used: used

@@ -50,11 +50,11 @@ defmodule Lyskom.Server do
 
   def handle_call({:who_is_on, want_visible, want_invisible, active_last}, from, state) do
     prot_a_call(
-    :who_is_on,
-    83,
-    from,
-    [boolean(want_visible), boolean(want_invisible), active_last],
-    state
+      :who_is_on,
+      83,
+      from,
+      [boolean(want_visible), boolean(want_invisible), active_last],
+      state
     )
   end
 

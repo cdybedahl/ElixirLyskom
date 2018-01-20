@@ -29,15 +29,15 @@ defmodule Lyskom.Socket do
 
   def handle_call({:send, msg}, _from, state = %{socket: socket}) do
     :ok = :gen_tcp.send(socket, msg)
-    # Logger.debug("Sent: #{msg}")
+    Logger.debug("Sent: #{msg}")
     {:reply, :ok, state}
   end
 
   ## Handle random messages
 
   def handle_info({:tcp, socket, msg}, state = %{socket: socket}) do
-    # Logger.debug("Incoming: #{msg}")
-    Lyskom.Parser.incoming(msg)
+    Logger.debug("Incoming: #{msg}")
+    Lyskom.ProtA.Tokenize.incoming(msg)
     :ok = :inet.setopts(socket, active: :once)
     {:noreply, state}
   end

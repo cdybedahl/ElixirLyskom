@@ -13,6 +13,7 @@ defmodule Lyskom.Application do
       Lyskom.Cache,
       Lyskom.Server,
       Lyskom.Parser,
+      Lyskom.ProtA.Tokenize,
       Lyskom.Socket
     ]
 

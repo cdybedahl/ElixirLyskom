@@ -2,8 +2,6 @@ defmodule Lyskom.Parser do
   use GenServer
   require Logger
 
-  alias Lyskom.ProtA.Tokenize
-
   @me __MODULE__
 
   ### API
@@ -12,69 +10,28 @@ defmodule Lyskom.Parser do
     GenServer.start_link(@me, :no_args, name: @me)
   end
 
-  def incoming(bin) do
-    GenServer.cast(@me, {:incoming, bin})
+  def incoming(token) do
+    GenServer.cast(@me, {:incoming, token})
   end
 
   ### Callbacks
 
   def init(:no_args) do
-    {:ok, %{data: "", tokens: [], incomplete: nil}}
+    {:ok, %{tokens: []}}
   end
 
-  def handle_cast({:incoming, bin}, state) do
-    state = put_in(state.data, state.data <> bin)
-    state = process_data(state)
-    state = process_tokens(state)
-    {:noreply, state}
+  def handle_cast({:incoming, :msgend}, state) do
+    msg = Enum.reverse(state.tokens)
+    msg = process_arrays(msg)
+    Logger.debug("Message: #{inspect(msg)}")
+    {:noreply, %{state | tokens: []}}
+  end
+
+  def handle_cast({:incoming, token}, state) do
+    {:noreply, update_in(state[:tokens], fn l -> [token | l] end)}
   end
 
   ### Internals
-
-  ## Take care of data coming in from the socket
-  defp process_data(state = %{data: ""}) do
-    state
-  end
-
-  defp process_data(%{data: bin, tokens: t, incomplete: nil}) do
-    {next, rest} = Tokenize.next_token(bin)
-
-    case next do
-      :incomplete ->
-        process_data(%{data: "", tokens: t, incomplete: rest})
-
-      _ ->
-        process_data(%{data: rest, tokens: [next | t], incomplete: nil})
-    end
-  end
-
-  defp process_data(%{data: bin, tokens: t, incomplete: prev}) do
-    {next, rest} = Tokenize.continue_token(bin, prev)
-    process_data(%{data: rest, tokens: [next | t], incomplete: nil})
-  end
-
-  ## Chunk up tokens into complete messages and pass them on
-  defp process_tokens(state = %{tokens: []}) do
-    state
-  end
-
-  defp process_tokens(state = %{tokens: list}) do
-    list = Enum.reverse(list)
-    index = Enum.find_index(list, fn item -> item == :msgend end)
-
-    case index do
-      nil ->
-        state
-
-      _ ->
-        {msg, list} = Enum.split(list, index)
-        [:msgend | list] = list
-        msg = process_arrays(msg)
-        Lyskom.Server.incoming(msg)
-        state = put_in(state.tokens, Enum.reverse(list))
-        process_tokens(state)
-    end
-  end
 
   @doc """
   process_arrays walks through a list of items and turns Protocol A arrays into

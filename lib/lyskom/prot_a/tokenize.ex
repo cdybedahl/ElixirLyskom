@@ -1,102 +1,108 @@
 defmodule Lyskom.ProtA.Tokenize do
-  def next_token(bin) do
-    _next_token(:start, bin)
+  use GenServer
+  require Logger
+
+  @me __MODULE__
+
+  ### API
+
+  def start_link(_) do
+    GenServer.start_link(@me, :no_args, name: @me)
   end
 
-  def continue_token(bin, {:integer, acc}) do
-    _next_token(:integer, bin, acc)
+  def incoming(data) do
+    GenServer.cast(@me, {:incoming, data})
   end
 
-  def continue_token(bin, {:hollerith, n, acc}) do
-    _next_token(:hollerith, n, bin, acc)
+  ### Callbacks
+
+  def init(:no_args) do
+    {:ok, %{data: "", state: :start, acc: []}}
   end
 
-  # Protocol Error
-  def _next_token(:start, <<"%%", message::binary>>) do
-    raise "Protocol Error: #{message}"
+  def handle_cast({:incoming, data}, state) do
+    Process.send_after(@me, :process, 0)
+    {:noreply, update_in(state.data, fn old -> old <> data end)}
   end
 
-  # Successful reply
-  def _next_token(:start, <<"=", tail::binary>>) do
-    {:success, tail}
+  def handle_info(:process, state) do
+    Logger.debug("Tokenize: #{inspect(state)}")
+    {:noreply, process(state)}
   end
 
-  # Failure reply
-  def _next_token(:start, <<"%", tail::binary>>) do
-    {:failure, tail}
+  ############################################
+  # Processing
+  ############################################
+
+  def process(state = %{data: ""}) do
+    state
   end
 
-  # Asynchronous message
-  def _next_token(:start, <<":", tail::binary>>) do
-    {:async, tail}
+  def process(%{data: <<next_char::8, rest::binary>>, state: :start, acc: []}) do
+    case next_char do
+      ?= ->
+        Lyskom.Parser.incoming(:success)
+        process(%{data: rest, state: :start, acc: []})
+
+      ?% ->
+        Lyskom.Parser.incoming(:failure)
+        process(%{data: rest, state: :start, acc: []})
+
+      ?: ->
+        Lyskom.Parser.incoming(:async)
+        process(%{data: rest, state: :start, acc: []})
+
+      ?{ ->
+        Lyskom.Parser.incoming(:arraystart)
+        process(%{data: rest, state: :start, acc: []})
+
+      ?} ->
+        Lyskom.Parser.incoming(:arrayend)
+        process(%{data: rest, state: :start, acc: []})
+
+      ?* ->
+        Lyskom.Parser.incoming(:arrayempty)
+        process(%{data: rest, state: :start, acc: []})
+
+      10 ->
+        Lyskom.Parser.incoming(:msgend)
+        process(%{data: rest, state: :start, acc: []})
+
+      32 ->
+        process(%{data: rest, state: :start, acc: []})
+
+      _ ->
+        process(%{data: rest, state: :content, acc: [next_char]})
+    end
   end
 
-  # Start of an array
-  def _next_token(:start, <<"{", tail::binary>>) do
-    {:arraystart, tail}
+  def process(%{data: <<next_char::8, rest::binary>>, state: :content, acc: acc}) do
+    case next_char do
+      32 ->
+        Lyskom.Parser.incoming(Enum.reverse(acc))
+        process(%{data: rest, state: :start, acc: []})
+
+      10 ->
+        Lyskom.Parser.incoming(Enum.reverse(acc))
+        Lyskom.Parser.incoming(:msgend)
+        process(%{data: rest, state: :start, acc: []})
+
+      ?H ->
+        process(%{data: rest, state: List.to_integer(Enum.reverse(acc)), acc: []})
+
+      _ ->
+        process(%{data: rest, state: :content, acc: [next_char | acc]})
+    end
   end
 
-  # End of an array
-  def _next_token(:start, <<"}", tail::binary>>) do
-    {:arrayend, tail}
-  end
+  def process(%{data: <<next_char::8, rest::binary>>, state: n, acc: acc}) when is_integer(n) do
+    case n do
+      0 ->
+        Lyskom.Parser.incoming(Enum.reverse(acc))
+        process(%{data: rest, state: :start, acc: []})
 
-  # Marker for an empty array
-  def _next_token(:start, <<"*", tail::binary>>) do
-    {:arrayempty, tail}
-  end
-
-  # End of a message
-  def _next_token(:start, <<"\n", tail::binary>>) do
-    {:msgend, tail}
-  end
-
-  # Space after a fixed-length item, skip
-  def _next_token(:start, <<" ", tail::binary>>) do
-    _next_token(:start, tail)
-  end
-
-  # Integer
-  def _next_token(:start, <<head::8, tail::binary>>) do
-    _next_token(:integer, tail, [head])
-  end
-
-  def _next_token(:integer, <<" ", tail::binary>>, acc) do
-    n = acc |> Enum.reverse()
-    {n, tail}
-  end
-
-  def _next_token(:integer, bin = <<"\n", _tail::binary>>, acc) do
-    n = acc |> Enum.reverse()
-    {n, bin}
-  end
-
-  def _next_token(:integer, <<"H", tail::binary>>, acc) do
-    n = acc |> Enum.reverse() |> List.to_integer()
-    _next_token(:hollerith, n, tail, [])
-  end
-
-  def _next_token(:integer, <<head::8, tail::binary>>, acc) do
-    _next_token(:integer, tail, [head | acc])
-  end
-
-  # FIXME: Add support for floats
-
-  def _next_token(:integer, "", acc) do
-    {:incomplete, {:integer, acc}}
-  end
-
-  # Hollerith string
-  def _next_token(:hollerith, 0, tail, acc) do
-    str = acc |> Enum.reverse() |> to_string
-    {str, tail}
-  end
-
-  def _next_token(:hollerith, n, <<head::8, tail::binary>>, acc) do
-    _next_token(:hollerith, n - 1, tail, [head | acc])
-  end
-
-  def _next_token(:hollerith, n, "", acc) do
-    {:incomplete, {:hollerith, n, acc}}
+      _ when n > 0 ->
+        process(%{data: rest, state: n - 1, acc: [next_char | acc]})
+    end
   end
 end
