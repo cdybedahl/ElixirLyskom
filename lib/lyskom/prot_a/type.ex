@@ -54,6 +54,32 @@ defmodule Lyskom.ProtA.Type do
     end
   end
 
+  defmodule DynamicSessionInfo do
+    defstruct [:session, :person, :working_conference, :idle_time, :flags, :what_am_i_doing]
+
+    def new([sess, pers, conf, idle, flags, what]) do
+      %Type.DynamicSessionInfo{
+        session: List.to_integer(sess),
+        person: List.to_integer(pers),
+        working_conference: List.to_integer(conf),
+        idle_time: List.to_integer(idle),
+        flags: Type.SessionFlags.new(Enum.map(flags, fn n -> n == ?1 end)),
+        what_am_i_doing: what
+      }
+    end
+  end
+
+  defmodule SessionFlags do
+    defstruct [invisible: false, user_active_used: false]
+
+    def new([invis, used, _,_,_,_,_,_]) do
+      %Type.SessionFlags{
+        invisible: invis,
+        user_active_used: used
+      }
+    end
+  end
+
   ### Encoding
 
   def hollerith(str) do

@@ -48,6 +48,16 @@ defmodule Lyskom.Server do
     )
   end
 
+  def handle_call({:who_is_on, want_visible, want_invisible, active_last}, from, state) do
+    prot_a_call(
+    :who_is_on,
+    83,
+    from,
+    [boolean(want_visible), boolean(want_invisible), active_last],
+    state
+    )
+  end
+
   # Helper functions
   def add_call_to_state(state = %{next_call_id: next_id}, data) do
     state = put_in(state.next_call_id, next_id + 1)
@@ -98,5 +108,9 @@ defmodule Lyskom.Server do
 
   def process_response(:lookup_z_name, :success, from, [infolist]) do
     GenServer.reply(from, Enum.map(infolist, fn c -> Type.ConfZInfo.new(c) end))
+  end
+
+  def process_response(:who_is_on, :success, from, [sessions]) do
+    GenServer.reply(from, Enum.map(sessions, fn c -> Type.DynamicSessionInfo.new(c) end))
   end
 end
