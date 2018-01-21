@@ -26,7 +26,6 @@ defmodule Lyskom.ProtA.Tokenize do
   end
 
   def handle_info(:process, state) do
-    Logger.debug("Tokenize: #{inspect(state)}")
     {:noreply, process(state)}
   end
 
@@ -95,11 +94,16 @@ defmodule Lyskom.ProtA.Tokenize do
     end
   end
 
-  def process(%{data: <<next_char::8, rest::binary>>, state: n, acc: acc}) when is_integer(n) do
+  def process(%{data: data = <<next_char::8, rest::binary>>, state: n, acc: acc})
+      when is_integer(n) do
     case n do
       0 ->
-        Lyskom.Parser.incoming(Enum.reverse(acc))
-        process(%{data: rest, state: :start, acc: []})
+        acc
+        |> Enum.reverse()
+        |> to_string
+        |> Lyskom.Parser.incoming()
+
+        process(%{data: data, state: :start, acc: []})
 
       _ when n > 0 ->
         process(%{data: rest, state: n - 1, acc: [next_char | acc]})
