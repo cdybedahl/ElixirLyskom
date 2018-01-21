@@ -23,7 +23,7 @@ defmodule Lyskom.Parser do
   def handle_cast({:incoming, :msgend}, state) do
     msg = Enum.reverse(state.tokens)
     msg = process_arrays(msg)
-    Logger.debug("Message: #{inspect(msg)}")
+    Lyskom.Server.incoming(msg)
     {:noreply, %{state | tokens: []}}
   end
 

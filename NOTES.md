@@ -1,3 +1,5 @@
+# Processes
+
 * Socket gets bytes over the network.
 
 * Socket sends them to Tokenizer.
@@ -9,3 +11,24 @@
 * When tokenizer has a full token, it sends it to Parser.
 
 * Parser stores tokens. When it gets an end-of-message token, it does array processing on what it has, then sends the whole message to Server.
+
+# Tokenizer state transitions
+
+* start
+** integer
+** success
+** fail
+** async
+** protocol error
+** float
+** arraystart
+** arrayempty
+** arrayend
+** msgend
+
+* integer
+** hollerith
+** start
+
+* hollerith
+** start
