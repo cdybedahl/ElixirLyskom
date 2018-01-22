@@ -113,7 +113,7 @@ defmodule Lyskom.ProtA.Type do
         person: to_integer(pers),
         working_conference: to_integer(conf),
         idle_time: to_integer(idle),
-        flags: Type.SessionFlags.new(Enum.map(flags, fn n -> n == ?1 end)),
+        flags: Type.SessionFlags.new(flags),
         what_am_i_doing: what
       }
     end
@@ -125,8 +125,8 @@ defmodule Lyskom.ProtA.Type do
 
     def new([invis, used, _, _, _, _, _, _]) do
       %Type.SessionFlags{
-        invisible: invis,
-        user_active_used: used
+        invisible: invis == ?1,
+        user_active_used: used == ?1
       }
     end
   end
