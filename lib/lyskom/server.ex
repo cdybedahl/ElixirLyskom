@@ -65,6 +65,10 @@ defmodule Lyskom.Server do
     prot_a_call(:get_conf_stat, 91, from, [conf_no], state)
   end
 
+  def handle_call({:query_async}, from, state) do
+    prot_a_call(:query_async, 81, from, [], state)
+  end
+
   # Helper functions
   def add_call_to_state(state = %{next_call_id: next_id}, data) do
     state = put_in(state.next_call_id, next_id + 1)
@@ -85,7 +89,12 @@ defmodule Lyskom.Server do
   #############################################################################
 
   def handle_cast({:incoming, [:async, argcount, type | args]}, state) do
-    Logger.info("Got async message type #{type} with #{argcount} arguments (#{inspect(args)}).")
+    Logger.info(
+      "Got async message type #{Lyskom.ProtA.Async.async(type)} with #{argcount} arguments (#{
+        inspect(args)
+      })."
+    )
+
     {:noreply, state}
   end
 
@@ -136,5 +145,9 @@ defmodule Lyskom.Server do
 
   def process_response(:get_conf_stat, :failure, from, [code | args]) do
     GenServer.reply(from, {:error, error_code(code), args})
+  end
+
+  def process_response(:query_async, :success, from, [asynclist]) do
+    GenServer.reply(from, Enum.map(asynclist, fn [n] -> List.to_integer(n) end))
   end
 end

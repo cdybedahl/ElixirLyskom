@@ -20,4 +20,8 @@ defmodule Lyskom do
   def get_conf_stat(conf_no) do
     GenServer.call(@server, {:get_conf_stat, conf_no}, :infinity)
   end
+
+  def query_async() do
+    GenServer.call(@server, {:query_async}, :infinity)
+  end
 end
