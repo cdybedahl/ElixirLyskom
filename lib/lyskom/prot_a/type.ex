@@ -9,7 +9,7 @@ defmodule Lyskom.ProtA.Type do
 
     def new(list) do
       [no, tag, creator | list] = list
-      {created_at, list} = Enum.split(list,9)
+      {created_at, list} = Enum.split(list, 9)
       [flags, limit, data] = list
 
       %Type.AuxItem{
@@ -17,9 +17,36 @@ defmodule Lyskom.ProtA.Type do
         tag: to_integer(tag),
         creator: to_integer(creator),
         created_at: Type.Time.new(created_at),
-        flags: flags,
+        flags: Type.AuxItemFlags.new(flags),
         inherit_limit: to_integer(limit),
         data: data
+      }
+    end
+  end
+
+  #############################################################################
+  defmodule AuxItemFlags do
+    defstruct [
+      :deleted,
+      :inherit,
+      :secret,
+      :hide_creator,
+      :dont_garb,
+      :reserved2,
+      :reserved3,
+      :reserved4
+    ]
+
+    def new([del, inh, sec, hid, don, re2, re3, re4]) do
+      %Type.AuxItemFlags{
+        deleted: del == ?1,
+        inherit: inh == ?1,
+        secret: sec == ?1,
+        hide_creator: hid == ?1,
+        dont_garb: don == ?1,
+        reserved2: re2 == ?1,
+        reserved3: re3 == ?1,
+        reserved4: re4 == ?1
       }
     end
   end
@@ -195,7 +222,7 @@ defmodule Lyskom.ProtA.Type do
         year: to_integer(year),
         day_of_week: to_integer(dow),
         day_of_year: to_integer(doy),
-        is_dst: (dst == '1')
+        is_dst: dst == '1'
       }
     end
   end
