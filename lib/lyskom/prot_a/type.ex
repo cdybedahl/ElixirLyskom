@@ -1,14 +1,21 @@
 defmodule Lyskom.ProtA.Type do
   alias __MODULE__
 
+  #############################################################################
   defmodule AuxItem do
     defstruct [:no, :tag, :creator, :created_at, :flags, :inherit_limit, :data]
+
+    def new(_list) do
+
+    end
   end
 
+  #############################################################################
   defmodule MiscInfo do
     defstruct [:type, :data]
   end
 
+  #############################################################################
   defmodule ConfZInfo do
     defstruct [:name, :conf_type, :conf_no]
 
@@ -21,6 +28,7 @@ defmodule Lyskom.ProtA.Type do
     end
   end
 
+  #############################################################################
   defmodule ConfType do
     defstruct rd_prot: false,
               original: false,
@@ -54,6 +62,7 @@ defmodule Lyskom.ProtA.Type do
     end
   end
 
+  #############################################################################
   defmodule DynamicSessionInfo do
     defstruct [:session, :person, :working_conference, :idle_time, :flags, :what_am_i_doing]
 
@@ -69,6 +78,7 @@ defmodule Lyskom.ProtA.Type do
     end
   end
 
+  #############################################################################
   defmodule SessionFlags do
     defstruct invisible: false, user_active_used: false
 
@@ -80,7 +90,84 @@ defmodule Lyskom.ProtA.Type do
     end
   end
 
+  #############################################################################
+  defmodule Conference do
+    defstruct [
+      :name,
+      :type,
+      :creation_time,
+      :last_written,
+      :creator,
+      :presentation,
+      :supervisor,
+      :permitted_submitters,
+      :super_conf,
+      :msg_of_day,
+      :nice,
+      :keep_commented,
+      :no_of_members,
+      :first_local_no,
+      :no_of_texts,
+      :expire,
+      :aux_items
+    ]
+
+    def new(list) do
+      [name, type | list] = list
+      {ctime, list} = Enum.split(list, 9)
+      {written, list} = Enum.split(list, 9)
+
+      [
+        creator,
+        pres,
+        supervisor,
+        permitted,
+        superconf,
+        motd,
+        nice,
+        keep,
+        no_of_members,
+        firstlocal,
+        no_of_texts,
+        expire | list
+      ] = list
+      auxitems = Enum.map(list,&Type.AuxItem.new/1)
+      # TODO: use all those
+    end
+  end
+
+  #############################################################################
+  defmodule Time do
+    defstruct [
+      :seconds,
+      :minutes,
+      :hours,
+      :day,
+      :month,
+      :year,
+      :day_of_week,
+      :day_of_year,
+      :is_dst
+    ]
+
+    def new([sec, min, hour, day, mon, year, dow, doy, dst]) do
+      %Type.Time{
+        seconds: sec,
+        minutes: min,
+        hours: hour,
+        day: day,
+        month: mon,
+        year: year,
+        day_of_week: dow,
+        day_of_year: doy,
+        is_dst: dst
+      }
+    end
+  end
+
+  #############################################################################
   ### Encoding
+  #############################################################################
 
   def hollerith(str) do
     "#{String.length(str)}H#{str}"

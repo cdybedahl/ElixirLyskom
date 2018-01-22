@@ -16,4 +16,8 @@ defmodule Lyskom do
   def who_is_on(want_visible \\ true, want_invisible \\ false, active_last \\ 1800) do
     GenServer.call(@server, {:who_is_on, want_visible, want_invisible, active_last}, :infinity)
   end
+
+  def get_conf_stat(conf_no) do
+    GenServer.call(@server, {:get_conf_stat, conf_no}, :infinity)
+  end
 end

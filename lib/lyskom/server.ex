@@ -25,7 +25,10 @@ defmodule Lyskom.Server do
     {:ok, %{next_call_id: 1, pending: %{}}}
   end
 
+  #############################################################################
   ## Handle calls
+  #############################################################################
+
   def handle_call(
         {:login, id_number, password, invisible},
         from,
@@ -58,6 +61,10 @@ defmodule Lyskom.Server do
     )
   end
 
+  def handle_call({:get_conf_stat, conf_no}, from, state) do
+    prot_a_call(:get_conf_stat, 91, from, [conf_no], state)
+  end
+
   # Helper functions
   def add_call_to_state(state = %{next_call_id: next_id}, data) do
     state = put_in(state.next_call_id, next_id + 1)
@@ -73,7 +80,10 @@ defmodule Lyskom.Server do
     {:noreply, add_call_to_state(state, {call_type, from})}
   end
 
+  #############################################################################
   ## Handle casts
+  #############################################################################
+
   def handle_cast({:incoming, [:async, argcount, type | args]}, state) do
     Logger.info("Got async message type #{type} with #{argcount} arguments (#{inspect(args)}).")
     {:noreply, state}
@@ -87,13 +97,19 @@ defmodule Lyskom.Server do
     {:noreply, state}
   end
 
+  #############################################################################
   ## Handle random messages
+  #############################################################################
+
   def handle_info(something, state) do
     Logger.info("Got message: #{inspect(something)}")
     {:noreply, state}
   end
 
+  #############################################################################
   ## Processing responses. Maybe should be in a separate module.
+  #############################################################################
+
   def process_response(:login, :success, from, []) do
     GenServer.reply(from, :ok)
   end
@@ -112,5 +128,13 @@ defmodule Lyskom.Server do
 
   def process_response(:who_is_on, :success, from, [sessions]) do
     GenServer.reply(from, Enum.map(sessions, fn c -> Type.DynamicSessionInfo.new(c) end))
+  end
+
+  def process_response(:get_conf_stat, :success, from, [conflist]) do
+    GenServer.reply(from, Enum.map(conflist, &Type.Conference.new/1))
+  end
+
+  def process_response(:get_conf_stat, :failure, from, [code | args]) do
+    GenServer.reply(from, {:error, error_code(code), args})
   end
 end
