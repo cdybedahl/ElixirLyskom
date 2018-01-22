@@ -1,6 +1,8 @@
 defmodule Lyskom.ProtA.Type do
   alias __MODULE__
 
+  import List, only: [to_integer: 1]
+
   #############################################################################
   defmodule AuxItem do
     defstruct [:no, :tag, :creator, :created_at, :flags, :inherit_limit, :data]
@@ -11,12 +13,12 @@ defmodule Lyskom.ProtA.Type do
       [flags, limit, data] = list
 
       %Type.AuxItem{
-        no: no,
-        tag: tag,
-        creator: creator,
+        no: to_integer(no),
+        tag: to_integer(tag),
+        creator: to_integer(creator),
         created_at: Type.Time.new(created_at),
         flags: flags,
-        inherit_limit: limit,
+        inherit_limit: to_integer(limit),
         data: data
       }
     end
@@ -35,7 +37,7 @@ defmodule Lyskom.ProtA.Type do
       %Type.ConfZInfo{
         name: name,
         conf_type: Type.ConfType.new(type),
-        conf_no: List.to_integer(no)
+        conf_no: to_integer(no)
       }
     end
   end
@@ -80,10 +82,10 @@ defmodule Lyskom.ProtA.Type do
 
     def new([sess, pers, conf, idle, flags, what]) do
       %Type.DynamicSessionInfo{
-        session: List.to_integer(sess),
-        person: List.to_integer(pers),
-        working_conference: List.to_integer(conf),
-        idle_time: List.to_integer(idle),
+        session: to_integer(sess),
+        person: to_integer(pers),
+        working_conference: to_integer(conf),
+        idle_time: to_integer(idle),
         flags: Type.SessionFlags.new(Enum.map(flags, fn n -> n == ?1 end)),
         what_am_i_doing: what
       }
@@ -152,18 +154,18 @@ defmodule Lyskom.ProtA.Type do
         type: Type.ConfType.new(type),
         creation_time: Type.Time.new(ctime),
         last_written: Type.Time.new(written),
-        creator: creator,
-        presentation: pres,
-        supervisor: supervisor,
-        permitted_submitters: permitted,
-        super_conf: superconf,
-        msg_of_day: motd,
-        nice: nice,
-        keep_commented: keep,
-        no_of_members: no_of_members,
-        first_local_no: firstlocal,
-        no_of_texts: no_of_texts,
-        expire: expire,
+        creator: to_integer(creator),
+        presentation: to_integer(pres),
+        supervisor: to_integer(supervisor),
+        permitted_submitters: to_integer(permitted),
+        super_conf: to_integer(superconf),
+        msg_of_day: to_integer(motd),
+        nice: to_integer(nice),
+        keep_commented: to_integer(keep),
+        no_of_members: to_integer(no_of_members),
+        first_local_no: to_integer(firstlocal),
+        no_of_texts: to_integer(no_of_texts),
+        expire: to_integer(expire),
         aux_items: auxitems
       }
     end
@@ -185,15 +187,15 @@ defmodule Lyskom.ProtA.Type do
 
     def new([sec, min, hour, day, mon, year, dow, doy, dst]) do
       %Type.Time{
-        seconds: sec,
-        minutes: min,
-        hours: hour,
-        day: day,
-        month: mon,
-        year: year,
-        day_of_week: dow,
-        day_of_year: doy,
-        is_dst: dst
+        seconds: to_integer(sec),
+        minutes: to_integer(min),
+        hours: to_integer(hour),
+        day: to_integer(day),
+        month: to_integer(mon),
+        year: to_integer(year),
+        day_of_week: to_integer(dow),
+        day_of_year: to_integer(doy),
+        is_dst: (dst == '1')
       }
     end
   end
