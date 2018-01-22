@@ -130,8 +130,8 @@ defmodule Lyskom.Server do
     GenServer.reply(from, Enum.map(sessions, fn c -> Type.DynamicSessionInfo.new(c) end))
   end
 
-  def process_response(:get_conf_stat, :success, from, [conflist]) do
-    GenServer.reply(from, Enum.map(conflist, &Type.Conference.new/1))
+  def process_response(:get_conf_stat, :success, from, conflist) do
+    GenServer.reply(from, Type.Conference.new(conflist))
   end
 
   def process_response(:get_conf_stat, :failure, from, [code | args]) do

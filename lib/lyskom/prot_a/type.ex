@@ -5,8 +5,20 @@ defmodule Lyskom.ProtA.Type do
   defmodule AuxItem do
     defstruct [:no, :tag, :creator, :created_at, :flags, :inherit_limit, :data]
 
-    def new(_list) do
+    def new(list) do
+      [no, tag, creator | list] = list
+      {created_at, list} = Enum.split(list,9)
+      [flags, limit, data] = list
 
+      %Type.AuxItem{
+        no: no,
+        tag: tag,
+        creator: creator,
+        created_at: Type.Time.new(created_at),
+        flags: flags,
+        inherit_limit: limit,
+        data: data
+      }
     end
   end
 
@@ -129,10 +141,31 @@ defmodule Lyskom.ProtA.Type do
         no_of_members,
         firstlocal,
         no_of_texts,
-        expire | list
+        expire,
+        auxitemlist
       ] = list
-      auxitems = Enum.map(list,&Type.AuxItem.new/1)
-      # TODO: use all those
+
+      auxitems = Enum.map(auxitemlist, &Type.AuxItem.new/1)
+
+      %Type.Conference{
+        name: name,
+        type: Type.ConfType.new(type),
+        creation_time: Type.Time.new(ctime),
+        last_written: Type.Time.new(written),
+        creator: creator,
+        presentation: pres,
+        supervisor: supervisor,
+        permitted_submitters: permitted,
+        super_conf: superconf,
+        msg_of_day: motd,
+        nice: nice,
+        keep_commented: keep,
+        no_of_members: no_of_members,
+        first_local_no: firstlocal,
+        no_of_texts: no_of_texts,
+        expire: expire,
+        aux_items: auxitems
+      }
     end
   end
 
