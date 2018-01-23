@@ -19,7 +19,7 @@ defmodule Lyskom.Application do
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
-    opts = [strategy: :rest_for_one, name: Lyskom.Supervisor]
+    opts = [strategy: :one_for_all, name: Lyskom.Supervisor]
     Supervisor.start_link(children, opts)
   end
 end
