@@ -6,7 +6,6 @@ defmodule Lyskom.Application do
   use Application
 
   def start(_type, _args) do
-
     sub_children = [
       Lyskom.Server,
       Lyskom.Parser,
