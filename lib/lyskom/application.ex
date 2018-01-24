@@ -6,20 +6,28 @@ defmodule Lyskom.Application do
   use Application
 
   def start(_type, _args) do
-    # List all child processes to be supervised
-    children = [
-      # Starts a worker by calling: Lyskom.Worker.start_link(arg)
-      # {Lyskom.Worker, arg},
-      Lyskom.Cache,
+
+    sub_children = [
       Lyskom.Server,
       Lyskom.Parser,
       Lyskom.ProtA.Tokenize,
       Lyskom.Socket
     ]
 
-    # See https://hexdocs.pm/elixir/Supervisor.html
-    # for other strategies and supported options
-    opts = [strategy: :one_for_all, name: Lyskom.Supervisor]
+    sub_opts = [strategy: :one_for_all, name: Lyskom.SubSupervisor]
+
+    children = [
+      # Starts a worker by calling: Lyskom.Worker.start_link(arg)
+      # {Lyskom.Worker, arg},
+      Lyskom.Cache,
+      %{
+        id: Lyskom.SubSupervisor,
+        start: {Supervisor, :start_link, [sub_children, sub_opts]},
+        type: :supervisor
+      }
+    ]
+
+    opts = [strategy: :one_for_one, name: Lyskom.Supervisor]
     Supervisor.start_link(children, opts)
   end
 end
