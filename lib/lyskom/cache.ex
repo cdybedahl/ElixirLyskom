@@ -1,5 +1,6 @@
 defmodule Lyskom.Cache do
   use GenServer
+  require Logger
 
   @me __MODULE__
   @remember_seconds 300
@@ -25,16 +26,20 @@ defmodule Lyskom.Cache do
   end
 
   def handle_call({:put, type, key, data}, _from, state) do
-    {:reply, :ok, put_in(state[{type, key}], {data, DateTime.utc_now()})}
+    {:reply, data, put_in(state[{type, key}], {data, DateTime.utc_now()})}
   end
 
   def handle_call({:get, type, key}, _from, state) do
-    data = state[{type, key}]
+    if Map.has_key?(state, {type, key}) do
+      {data, timestamp} = state[{type, key}]
 
-    if data != nil and DateTime.diff(DateTime.utc_now(), elem(data, 1)) > @remember_seconds do
-      {:reply, nil, Map.delete(state, {type, key})}
+      if DateTime.diff(DateTime.utc_now(), timestamp) > @remember_seconds do
+        {:reply, nil, Map.delete(state, {type, key})}
+      else
+        {:reply, data, state}
+      end
     else
-      {:reply, elem(data, 0), state}
+      {:reply, nil, state}
     end
   end
 end

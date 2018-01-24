@@ -66,7 +66,13 @@ defmodule Lyskom.Server do
   end
 
   def handle_call({:get_conf_stat, conf_no}, from, state) do
-    prot_a_call(:get_conf_stat, 91, from, [conf_no], state)
+    case Lyskom.Cache.get(:get_conf_stat, conf_no) do
+      nil ->
+        prot_a_call(:get_conf_stat, 91, from, [conf_no], state)
+
+      data ->
+        {:reply, data, state}
+    end
   end
 
   def handle_call({:query_async}, from, state) do
@@ -74,9 +80,9 @@ defmodule Lyskom.Server do
   end
 
   # Helper functions
-  def add_call_to_state(state = %{next_call_id: next_id}, data) do
+  def add_call_to_state(state = %{next_call_id: next_id}, call_args) do
     state = put_in(state.next_call_id, next_id + 1)
-    put_in(state.pending[next_id], data)
+    put_in(state.pending[next_id], call_args)
   end
 
   def prot_a_call(call_type, call_no, from, args, state = %{next_call_id: next_id}) do
@@ -85,7 +91,7 @@ defmodule Lyskom.Server do
     |> Kernel.<>("\n")
     |> Lyskom.Socket.send()
 
-    {:noreply, add_call_to_state(state, {call_type, from})}
+    {:noreply, add_call_to_state(state, {call_type, from, args})}
   end
 
   #############################################################################
@@ -104,9 +110,9 @@ defmodule Lyskom.Server do
 
   def handle_cast({:incoming, [type, id | args]}, state) do
     id = List.to_integer(id)
-    {call, from} = Map.fetch!(state.pending, id)
+    {call, from, call_args} = Map.fetch!(state.pending, id)
     state = put_in(state.pending, Map.delete(state.pending, id))
-    process_response(call, type, from, args)
+    process_response(call, type, from, args, call_args)
     {:noreply, state}
   end
 
@@ -123,35 +129,38 @@ defmodule Lyskom.Server do
   ## Processing responses. Maybe should be in a separate module.
   #############################################################################
 
-  def process_response(:login, :success, from, []) do
+  def process_response(:login, :success, from, [], _call_args) do
     GenServer.reply(from, :ok)
   end
 
-  def process_response(:login, :failure, from, [code | args]) do
+  def process_response(:login, :failure, from, [code | args], _call_args) do
     GenServer.reply(from, {:error, error_code(code), args})
   end
 
-  def process_response(:logout, :success, from, []) do
+  def process_response(:logout, :success, from, [], _call_args) do
     GenServer.reply(from, :ok)
   end
 
-  def process_response(:lookup_z_name, :success, from, [infolist]) do
+  def process_response(:lookup_z_name, :success, from, [infolist], _call_args) do
     GenServer.reply(from, Enum.map(infolist, fn c -> Type.ConfZInfo.new(c) end))
   end
 
-  def process_response(:who_is_on, :success, from, [sessions]) do
+  def process_response(:who_is_on, :success, from, [sessions], _call_args) do
     GenServer.reply(from, Enum.map(sessions, fn c -> Type.DynamicSessionInfo.new(c) end))
   end
 
-  def process_response(:get_conf_stat, :success, from, conflist) do
-    GenServer.reply(from, Type.Conference.new(conflist))
+  def process_response(:get_conf_stat, :success, from, conflist, [conf_no]) do
+    GenServer.reply(
+      from,
+      Lyskom.Cache.put(:get_conf_stat, conf_no, Type.Conference.new(conflist))
+    )
   end
 
-  def process_response(:get_conf_stat, :failure, from, [code | args]) do
+  def process_response(:get_conf_stat, :failure, from, [code | args], _call_args) do
     GenServer.reply(from, {:error, error_code(code), args})
   end
 
-  def process_response(:query_async, :success, from, [asynclist]) do
+  def process_response(:query_async, :success, from, [asynclist], _call_args) do
     GenServer.reply(from, Enum.map(asynclist, fn [n] -> List.to_integer(n) end))
   end
 end
