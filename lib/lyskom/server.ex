@@ -26,7 +26,7 @@ defmodule Lyskom.Server do
   end
 
   def terminate(_reason, state) do
-    Enum.each(state.pending, fn {_id, {_call, from}} -> GenServer.reply(from, :retry) end)
+    Enum.each(state.pending, fn {_id, {_call, from, _data}} -> GenServer.reply(from, :retry) end)
   end
 
   #############################################################################

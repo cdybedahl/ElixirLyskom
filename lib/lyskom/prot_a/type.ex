@@ -200,30 +200,12 @@ defmodule Lyskom.ProtA.Type do
 
   #############################################################################
   defmodule Time do
-    defstruct [
-      :seconds,
-      :minutes,
-      :hours,
-      :day,
-      :month,
-      :year,
-      :day_of_week,
-      :day_of_year,
-      :is_dst
-    ]
-
-    def new([sec, min, hour, day, mon, year, dow, doy, dst]) do
-      %Type.Time{
-        seconds: to_integer(sec),
-        minutes: to_integer(min),
-        hours: to_integer(hour),
-        day: to_integer(day),
-        month: to_integer(mon),
-        year: to_integer(year),
-        day_of_week: to_integer(dow),
-        day_of_year: to_integer(doy),
-        is_dst: dst == '1'
-      }
+    def new([sec, min, hour, day, mon, year, _dow, _doy, _dst]) do
+      Timex.to_datetime(
+        {{1900 + to_integer(year), 1 + to_integer(mon), to_integer(day)},
+         {to_integer(hour), to_integer(min), to_integer(sec)}},
+        :local
+      )
     end
   end
 
