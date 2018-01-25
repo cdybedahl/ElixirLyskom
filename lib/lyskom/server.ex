@@ -79,6 +79,10 @@ defmodule Lyskom.Server do
     prot_a_call(:query_async, 81, from, [], state)
   end
 
+  def handle_call({:get_text_stat, text_no}, from, state) do
+    prot_a_call(:get_text_stat, 90, from, [text_no], state)
+  end
+
   # Helper functions
   def add_call_to_state(state = %{next_call_id: next_id}, call_args) do
     state = put_in(state.next_call_id, next_id + 1)
@@ -162,5 +166,13 @@ defmodule Lyskom.Server do
 
   def process_response(:query_async, :success, from, [asynclist], _call_args) do
     GenServer.reply(from, Enum.map(asynclist, fn [n] -> List.to_integer(n) end))
+  end
+
+  def process_response(:get_text_stat, :success, from, text_stat, _call_args) do
+    GenServer.reply(from, Type.TextStat.new(text_stat))
+  end
+
+  def process_response(:get_text_stat, :failure, from, [code | args], _call_args) do
+    GenServer.reply(from, {:error, error_code(code), args})
   end
 end

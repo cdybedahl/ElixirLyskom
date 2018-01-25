@@ -1,5 +1,6 @@
 defmodule Lyskom.ProtA.Type do
   alias __MODULE__
+  require Logger
 
   import List, only: [to_integer: 1]
 
@@ -54,6 +55,19 @@ defmodule Lyskom.ProtA.Type do
   #############################################################################
   defmodule MiscInfo do
     defstruct [:type, :data]
+
+    def new(list) do
+      _new(list, [])
+    end
+
+    def _new([], acc) do
+      acc
+    end
+
+    # TODO: Add all misc_info types
+    def _new(['0' | conf_no | tail], acc) do
+      _new(tail, [{:recpt, to_integer(conf_no)} | acc])
+    end
   end
 
   #############################################################################
@@ -206,6 +220,35 @@ defmodule Lyskom.ProtA.Type do
          {to_integer(hour), to_integer(min), to_integer(sec)}},
         :local
       )
+    end
+  end
+
+  #############################################################################
+  defmodule TextStat do
+    defstruct [
+      :creation_time,
+      :author,
+      :no_of_lines,
+      :no_of_chars,
+      :no_of_marks,
+      :misc_info,
+      :aux_items
+    ]
+
+    def new(list) do
+      {ctime, list} = Enum.split(list, 9)
+      [author, lines, chars, marks, mi_list, ai_list] = list
+      aux_items = Enum.map(ai_list, &Type.AuxItem.new/1)
+
+      %Type.TextStat{
+        creation_time: Type.Time.new(ctime),
+        author: to_integer(author),
+        no_of_lines: to_integer(lines),
+        no_of_chars: to_integer(chars),
+        no_of_marks: to_integer(marks),
+        misc_info: List.foldl(mi_list, [], fn n, acc -> acc ++ n end),
+        aux_items: aux_items
+      }
     end
   end
 
