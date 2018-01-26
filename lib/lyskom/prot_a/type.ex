@@ -57,7 +57,7 @@ defmodule Lyskom.ProtA.Type do
     defstruct [:type, :data]
 
     def new(list) do
-      _new(list, [])
+      Enum.reverse(_new(list, []))
     end
 
     def _new([], acc) do
@@ -65,8 +65,40 @@ defmodule Lyskom.ProtA.Type do
     end
 
     # TODO: Add all misc_info types
-    def _new(['0' | conf_no | tail], acc) do
+    def _new(['0' , conf_no | tail], acc) do
       _new(tail, [{:recpt, to_integer(conf_no)} | acc])
+    end
+    def _new(['1' , conf_no | tail], acc) do
+      _new(tail, [{:cc_recpt, to_integer(conf_no)} | acc])
+    end
+    def _new(['2' , text_no | tail], acc) do
+      _new(tail, [{:comm_to, to_integer(text_no)} | acc])
+    end
+    def _new(['3' , text_no | tail], acc) do
+      _new(tail, [{:comm_in, to_integer(text_no)} | acc])
+    end
+    def _new(['4' , text_no | tail], acc) do
+      _new(tail, [{:footn_to, to_integer(text_no)} | acc])
+    end
+    def _new(['5' , text_no | tail], acc) do
+      _new(tail, [{:footn_in, to_integer(text_no)} | acc])
+    end
+    def _new(['6' , local_text_no | tail], acc) do
+      _new(tail, [{:loc_no, to_integer(local_text_no)} | acc])
+    end
+    def _new(['7' | tail], acc) do
+      {t, tail} = Enum.split(tail,9)
+      _new(tail, [{:rec_time, Type.Time.new(t)} | acc])
+    end
+    def _new(['8' , pers_no | tail], acc) do
+      _new(tail, [{:sent_by, to_integer(pers_no)} | acc])
+    end
+    def _new(['9' | tail], acc) do
+      {t, tail} = Enum.split(tail,9)
+      _new(tail, [{:sent_at, Type.Time.new(t)} | acc])
+    end
+    def _new(['15' , conf_no | tail], acc) do
+      _new(tail, [{:bcc_recpt, to_integer(conf_no)} | acc])
     end
   end
 
@@ -239,6 +271,8 @@ defmodule Lyskom.ProtA.Type do
       {ctime, list} = Enum.split(list, 9)
       [author, lines, chars, marks, mi_list, ai_list] = list
       aux_items = Enum.map(ai_list, &Type.AuxItem.new/1)
+      # The following line is a sign that the array handling needs to be redone.
+      mi_list = List.foldl(mi_list, [], fn n, acc -> acc ++ n end)
 
       %Type.TextStat{
         creation_time: Type.Time.new(ctime),
@@ -246,7 +280,7 @@ defmodule Lyskom.ProtA.Type do
         no_of_lines: to_integer(lines),
         no_of_chars: to_integer(chars),
         no_of_marks: to_integer(marks),
-        misc_info: List.foldl(mi_list, [], fn n, acc -> acc ++ n end),
+        misc_info: Type.MiscInfo.new(mi_list),
         aux_items: aux_items
       }
     end
