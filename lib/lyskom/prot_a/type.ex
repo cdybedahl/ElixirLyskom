@@ -284,6 +284,25 @@ defmodule Lyskom.ProtA.Type do
         aux_items: aux_items
       }
     end
+
+    @doc "For use with async call number 0 (async-new-text-old)."
+    def old(list) do
+      {ctime, list} = Enum.split(list, 9)
+      [author, lines, chars, marks, mi_list] = list
+      # The following line is a sign that the array handling needs to be redone.
+      mi_list = List.foldl(mi_list, [], fn n, acc -> acc ++ n end)
+
+      %Type.TextStat{
+        creation_time: Type.Time.new(ctime),
+        author: to_integer(author),
+        no_of_lines: to_integer(lines),
+        no_of_chars: to_integer(chars),
+        no_of_marks: to_integer(marks),
+        misc_info: Type.MiscInfo.new(mi_list),
+        aux_items: []
+      }
+    end
+
   end
 
   #############################################################################
