@@ -28,4 +28,8 @@ defmodule Lyskom do
   def get_text_stat(text_no) do
     GenServer.call(@server, {:get_text_stat, text_no}, :infinity)
   end
+
+  def get_text(text_no, start_char \\ 0, end_char \\ 1024*1024) do
+    GenServer.call(@server, {:get_text, text_no, start_char, end_char}, :infinity)
+  end
 end

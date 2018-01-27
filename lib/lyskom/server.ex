@@ -83,7 +83,11 @@ defmodule Lyskom.Server do
     prot_a_call(:get_text_stat, 90, from, [text_no], state)
   end
 
-  # Helper functions
+  def handle_call({:get_text, text_no, start_char, end_char}, from, state) do
+    prot_a_call(:get_text, 25, from, [text_no, start_char, end_char], state)
+  end
+
+  # Helper functions ##########################################################
   def add_call_to_state(state = %{next_call_id: next_id}, call_args) do
     state = put_in(state.next_call_id, next_id + 1)
     put_in(state.pending[next_id], call_args)
@@ -173,6 +177,14 @@ defmodule Lyskom.Server do
   end
 
   def process_response(:get_text_stat, :failure, from, [code | args], _call_args) do
+    GenServer.reply(from, {:error, error_code(code), args})
+  end
+
+  def process_response(:get_text, :success, from, [text], _call_args) do
+    GenServer.reply(from, text)
+  end
+
+  def process_response(:get_text, :failure, from, [code|args], _call_args) do
     GenServer.reply(from, {:error, error_code(code), args})
   end
 end
