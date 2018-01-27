@@ -21,7 +21,7 @@ defmodule Lyskom.MixProject do
 
   defp deps do
     [
-      {:iconv, "~> 1.0.6"},
+      {:codepagex, "~> 0.1.4"},
       {:timex, "~> 3.0"}
     ]
   end
