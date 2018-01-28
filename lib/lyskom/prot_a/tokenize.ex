@@ -100,7 +100,8 @@ defmodule Lyskom.ProtA.Tokenize do
       0 ->
         acc
         |> Enum.reverse()
-        |> to_string
+        |> IO.iodata_to_binary()
+        |> Codepagex.to_string(:iso_8859_1)
         |> Lyskom.Parser.incoming()
 
         process(%{data: data, state: :start, acc: []})
