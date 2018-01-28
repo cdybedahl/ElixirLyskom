@@ -18,6 +18,7 @@ defmodule Lyskom.Application do
     children = [
       # Starts a worker by calling: Lyskom.Worker.start_link(arg)
       # {Lyskom.Worker, arg},
+      Lyskom.AsyncHandler,
       Lyskom.Cache,
       %{
         id: Lyskom.SubSupervisor,

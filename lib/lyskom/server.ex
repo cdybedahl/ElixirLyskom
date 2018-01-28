@@ -106,12 +106,8 @@ defmodule Lyskom.Server do
   ## Handle casts
   #############################################################################
 
-  def handle_cast({:incoming, [:async, argcount, type | args]}, state) do
-    Logger.info(
-      "Got async message type #{Lyskom.ProtA.Async.async(type)} with #{argcount} arguments (#{
-        inspect(args)
-      })."
-    )
+  def handle_cast({:incoming, [:async, _argcount, type | args]}, state) do
+    Lyskom.AsyncHandler.handle(type, args)
 
     {:noreply, state}
   end
@@ -184,7 +180,7 @@ defmodule Lyskom.Server do
     GenServer.reply(from, text)
   end
 
-  def process_response(:get_text, :failure, from, [code|args], _call_args) do
+  def process_response(:get_text, :failure, from, [code | args], _call_args) do
     GenServer.reply(from, {:error, error_code(code), args})
   end
 end

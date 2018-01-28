@@ -65,39 +65,49 @@ defmodule Lyskom.ProtA.Type do
     end
 
     # TODO: Add all misc_info types
-    def _new(['0' , conf_no | tail], acc) do
+    def _new(['0', conf_no | tail], acc) do
       _new(tail, [{:recpt, to_integer(conf_no)} | acc])
     end
-    def _new(['1' , conf_no | tail], acc) do
+
+    def _new(['1', conf_no | tail], acc) do
       _new(tail, [{:cc_recpt, to_integer(conf_no)} | acc])
     end
-    def _new(['2' , text_no | tail], acc) do
+
+    def _new(['2', text_no | tail], acc) do
       _new(tail, [{:comm_to, to_integer(text_no)} | acc])
     end
-    def _new(['3' , text_no | tail], acc) do
+
+    def _new(['3', text_no | tail], acc) do
       _new(tail, [{:comm_in, to_integer(text_no)} | acc])
     end
-    def _new(['4' , text_no | tail], acc) do
+
+    def _new(['4', text_no | tail], acc) do
       _new(tail, [{:footn_to, to_integer(text_no)} | acc])
     end
-    def _new(['5' , text_no | tail], acc) do
+
+    def _new(['5', text_no | tail], acc) do
       _new(tail, [{:footn_in, to_integer(text_no)} | acc])
     end
-    def _new(['6' , local_text_no | tail], acc) do
+
+    def _new(['6', local_text_no | tail], acc) do
       _new(tail, [{:loc_no, to_integer(local_text_no)} | acc])
     end
+
     def _new(['7' | tail], acc) do
-      {t, tail} = Enum.split(tail,9)
+      {t, tail} = Enum.split(tail, 9)
       _new(tail, [{:rec_time, Type.Time.new(t)} | acc])
     end
-    def _new(['8' , pers_no | tail], acc) do
+
+    def _new(['8', pers_no | tail], acc) do
       _new(tail, [{:sent_by, to_integer(pers_no)} | acc])
     end
+
     def _new(['9' | tail], acc) do
-      {t, tail} = Enum.split(tail,9)
+      {t, tail} = Enum.split(tail, 9)
       _new(tail, [{:sent_at, Type.Time.new(t)} | acc])
     end
-    def _new(['15' , conf_no | tail], acc) do
+
+    def _new(['15', conf_no | tail], acc) do
       _new(tail, [{:bcc_recpt, to_integer(conf_no)} | acc])
     end
   end
@@ -302,7 +312,6 @@ defmodule Lyskom.ProtA.Type do
         aux_items: []
       }
     end
-
   end
 
   #############################################################################
