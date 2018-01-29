@@ -35,21 +35,21 @@ defmodule Lyskom.AsyncHandler do
   end
 
   def handle_cast({:async_new_text_old, [text_no | text_stat_old]}, state) do
-    stat = Lyskom.ProtA.Type.TextStat.old(text_stat_old)
-    Logger.info("New text #{text_no}: #{inspect(stat)}")
-    send_to_clients(state.clients, {:async_new_text_old, List.to_integer(text_no), stat})
-    {:noreply, state}
+    {:noreply,
+     send_to_clients(
+       state,
+       {:async_new_text_old, List.to_integer(text_no),
+        Lyskom.ProtA.Type.TextStat.old(text_stat_old)}
+     )}
   end
 
   def handle_cast({:async_sync_db, []}, state) do
-    Logger.info("Database synchronizing.")
-    send_to_clients(state.clients, {:async_sync_db})
-    {:noreply, state}
+    {:noreply, send_to_clients(state, {:async_sync_db})}
   end
 
   def handle_cast({type, args}, state) do
     Logger.info("Async #{inspect(type)} (#{inspect(args)}).")
-    {:noreply, state}
+    {:noreply, send_to_clients(state, {type, args})}
   end
 
   def handle_call({:add_client, pid}, _from, state) do
@@ -64,7 +64,8 @@ defmodule Lyskom.AsyncHandler do
   ### Helpers
   #############################################################################
 
-  def send_to_clients(clients, msg) do
-    Enum.each(clients, fn pid -> send(pid, msg) end)
+  def send_to_clients(state = %{clients: clients}, msg) do
+    :ok = Enum.each(clients, fn pid -> send(pid, msg) end)
+    state
   end
 end
