@@ -3,6 +3,7 @@ defmodule Lyskom.AsyncHandler do
   require Logger
 
   import Lyskom.ProtA.Async
+  import List, only: [to_integer: 1]
 
   @me __MODULE__
 
@@ -34,12 +35,12 @@ defmodule Lyskom.AsyncHandler do
     {:ok, %{clients: MapSet.new()}}
   end
 
+  #############################################################################
   def handle_cast({:async_new_text_old, [text_no | text_stat_old]}, state) do
     {:noreply,
      send_to_clients(
        state,
-       {:async_new_text_old, List.to_integer(text_no),
-        Lyskom.ProtA.Type.TextStat.old(text_stat_old)}
+       {:async_new_text_old, to_integer(text_no), Lyskom.ProtA.Type.TextStat.old(text_stat_old)}
      )}
   end
 
@@ -47,11 +48,22 @@ defmodule Lyskom.AsyncHandler do
     {:noreply, send_to_clients(state, {:async_sync_db})}
   end
 
+  def handle_cast({:async_login, [pers_no, session_no]}, state) do
+    {:noreply,
+     send_to_clients(state, {:async_login, to_integer(pers_no), to_integer(session_no)})}
+  end
+
+  def handle_cast({:async_logout, [pers_no, session_no]}, state) do
+    {:noreply,
+     send_to_clients(state, {:async_logout, to_integer(pers_no), to_integer(session_no)})}
+  end
+
   def handle_cast({type, args}, state) do
     Logger.info("Async #{inspect(type)} (#{inspect(args)}).")
     {:noreply, send_to_clients(state, {type, args})}
   end
 
+  #############################################################################
   def handle_call({:add_client, pid}, _from, state) do
     {:reply, :ok, update_in(state[:clients], &MapSet.put(&1, pid))}
   end

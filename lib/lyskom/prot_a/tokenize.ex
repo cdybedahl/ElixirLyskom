@@ -101,7 +101,7 @@ defmodule Lyskom.ProtA.Tokenize do
         acc
         |> Enum.reverse()
         |> IO.iodata_to_binary()
-        |> Codepagex.to_string(:iso_8859_1)
+        |> to_utf8
         |> Lyskom.Parser.incoming()
 
         process(%{data: data, state: :start, acc: []})
@@ -109,5 +109,10 @@ defmodule Lyskom.ProtA.Tokenize do
       _ when n > 0 ->
         process(%{data: rest, state: n - 1, acc: [next_char | acc]})
     end
+  end
+
+  def to_utf8(bin) do
+    {:ok, str} = Codepagex.to_string(bin, :iso_8859_1)
+    str
   end
 end
