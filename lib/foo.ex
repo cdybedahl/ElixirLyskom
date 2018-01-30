@@ -12,6 +12,9 @@ defmodule Foo do
       {:async_logout, user, _session} ->
         Logger.info("User #{username(user)} logged out.")
 
+      {:async_sync_db} ->
+        Logger.info("Databasen synkas. Eller har synkat klart.")
+
       msg ->
         Logger.debug("Got a message: #{inspect(msg)}")
     end
