@@ -32,4 +32,8 @@ defmodule Lyskom do
   def get_text(text_no, start_char \\ 0, end_char \\ 1024 * 1024) do
     GenServer.call(@server, {:get_text, text_no, start_char, end_char}, :infinity)
   end
+
+  def get_unread_confs(pers_no) do
+    GenServer.call(@server, {:get_unread_confs, pers_no}, :infinity)
+  end
 end

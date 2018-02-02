@@ -60,4 +60,66 @@ defmodule Lyskom.ProtA.Error do
   def error_code(59), do: :weight_denied
   def error_code(60), do: :weight_zero
   def error_code(61), do: :bad_bool
+
+  def error_code('0'), do: :no_error
+  def error_code('2'), do: :not_implemented
+  def error_code('3'), do: :obsolete_call
+  def error_code('4'), do: :invalid_password
+  def error_code('5'), do: :string_too_long
+  def error_code('6'), do: :login_first
+  def error_code('7'), do: :login_disallowed
+  def error_code('8'), do: :conference_zero
+  def error_code('9'), do: :undefined_conference
+  def error_code('10'), do: :undefined_person
+  def error_code('11'), do: :access_denied
+  def error_code('12'), do: :permission_denied
+  def error_code('13'), do: :not_member
+  def error_code('14'), do: :no_such_text
+  def error_code('15'), do: :text_zero
+  def error_code('16'), do: :no_such_local_text
+  def error_code('17'), do: :local_text_zero
+  def error_code('18'), do: :bad_name
+  def error_code('19'), do: :index_out_of_range
+  def error_code('20'), do: :conference_exists
+  def error_code('21'), do: :person_exists
+  def error_code('22'), do: :secret_public
+  def error_code('23'), do: :letterbox
+  def error_code('24'), do: :ldb_error
+  def error_code('25'), do: :illegal_misc
+  def error_code('26'), do: :illegal_info_type
+  def error_code('27'), do: :already_recipient
+  def error_code('28'), do: :already_comment
+  def error_code('29'), do: :already_footnote
+  def error_code('30'), do: :not_recipient
+  def error_code('31'), do: :not_comment
+  def error_code('32'), do: :not_footnote
+  def error_code('33'), do: :recipient_limit
+  def error_code('34'), do: :comment_limit
+  def error_code('35'), do: :footnote_limit
+  def error_code('36'), do: :mark_limit
+  def error_code('37'), do: :not_author
+  def error_code('38'), do: :no_connect
+  def error_code('39'), do: :out_of_memory
+  def error_code('40'), do: :server_is_crazy
+  def error_code('41'), do: :client_is_crazy
+  def error_code('42'), do: :undefined_session
+  def error_code('43'), do: :regexp_error
+  def error_code('44'), do: :not_marked
+  def error_code('45'), do: :temporary_failure
+  def error_code('46'), do: :long_array
+  def error_code('47'), do: :anonymous_rejected
+  def error_code('48'), do: :illegal_aux_item
+  def error_code('49'), do: :aux_item_permission
+  def error_code('50'), do: :unknown_async
+  def error_code('51'), do: :internal_error
+  def error_code('52'), do: :feature_disabled
+  def error_code('53'), do: :message_not_sent
+  def error_code('54'), do: :invalid_membership_type
+  def error_code('55'), do: :invalid_range
+  def error_code('56'), do: :invalid_range_list
+  def error_code('57'), do: :undefined_measurement
+  def error_code('58'), do: :priority_denied
+  def error_code('59'), do: :weight_denied
+  def error_code('60'), do: :weight_zero
+  def error_code('61'), do: :bad_bool
 end

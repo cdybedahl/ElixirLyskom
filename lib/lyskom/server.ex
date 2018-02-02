@@ -87,6 +87,10 @@ defmodule Lyskom.Server do
     prot_a_call(:get_text, 25, from, [text_no, start_char, end_char], state)
   end
 
+  def handle_call({:get_unread_confs, pers_no}, from, state) do
+    prot_a_call(:get_unread_confs, 52, from, [pers_no], state)
+  end
+
   # Helper functions ##########################################################
   def add_call_to_state(state = %{next_call_id: next_id}, call_args) do
     state = put_in(state.next_call_id, next_id + 1)
@@ -181,6 +185,14 @@ defmodule Lyskom.Server do
   end
 
   def process_response(:get_text, :failure, from, [code | args], _call_args) do
+    GenServer.reply(from, {:error, error_code(code), args})
+  end
+
+  def process_response(:get_unread_confs, :success, from, [conf_no_list], _call_args) do
+    GenServer.reply(from, Enum.map(conf_no_list, fn [n] -> List.to_integer(n) end))
+  end
+
+  def process_response(:get_unread_confs, :failure, from, [code | args], _call_args) do
     GenServer.reply(from, {:error, error_code(code), args})
   end
 end
