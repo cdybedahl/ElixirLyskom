@@ -4,16 +4,19 @@ defmodule Foo do
   def async_printer do
     receive do
       {:async_new_text_old, no, stat} ->
-        Logger.info("Text #{no} by user #{username(stat.author)} was created.")
+        Logger.info("#{username(stat.author)} created text #{no}.")
 
-      {:async_login, user, _session} ->
-        Logger.info("User #{username(user)} logged in.")
+      {:async_login, _user, _session} ->
+        # Logger.info("User #{username(user)} logged in.")
+        true
 
-      {:async_logout, user, _session} ->
-        Logger.info("User #{username(user)} logged out.")
+      {:async_logout, _user, _session} ->
+        # Logger.info("User #{username(user)} logged out.")
+        true
 
       {:async_sync_db} ->
-        Logger.info("Databasen synkas. Eller har synkat klart.")
+        # Logger.info("Databasen synkas. Eller har synkat klart.")
+        true
 
       msg ->
         Logger.debug("Got a message: #{inspect(msg)}")
