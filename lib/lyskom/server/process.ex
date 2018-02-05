@@ -7,10 +7,6 @@ defmodule Lyskom.Server.Process do
     GenServer.reply(from, :ok)
   end
 
-  def response(:login, :failure, from, [code | args], _call_args) do
-    GenServer.reply(from, {:error, error_code(code), args})
-  end
-
   def response(:logout, :success, from, [], _call_args) do
     GenServer.reply(from, :ok)
   end
@@ -30,10 +26,6 @@ defmodule Lyskom.Server.Process do
     )
   end
 
-  def response(:get_conf_stat, :failure, from, [code | args], _call_args) do
-    GenServer.reply(from, {:error, error_code(code), args})
-  end
-
   def response(:query_async, :success, from, [asynclist], _call_args) do
     GenServer.reply(from, Enum.map(asynclist, fn [n] -> List.to_integer(n) end))
   end
@@ -42,31 +34,19 @@ defmodule Lyskom.Server.Process do
     GenServer.reply(from, Type.TextStat.new(text_stat))
   end
 
-  def response(:get_text_stat, :failure, from, [code | args], _call_args) do
-    GenServer.reply(from, {:error, error_code(code), args})
-  end
-
   def response(:get_text, :success, from, [text], _call_args) do
     GenServer.reply(from, text)
-  end
-
-  def response(:get_text, :failure, from, [code | args], _call_args) do
-    GenServer.reply(from, {:error, error_code(code), args})
   end
 
   def response(:get_unread_confs, :success, from, [conf_no_list], _call_args) do
     GenServer.reply(from, Enum.map(conf_no_list, fn [n] -> List.to_integer(n) end))
   end
 
-  def response(:get_unread_confs, :failure, from, [code | args], _call_args) do
-    GenServer.reply(from, {:error, error_code(code), args})
-  end
-
   def response(:query_read_texts, :success, from, list, _call_args) do
     GenServer.reply(from, Type.Membership.new(list))
   end
 
-  def response(:query_read_texts, :failure, from, [code | args], _call_args) do
+  def response(_call_type, :failure, from, [code | args], _call_args) do
     GenServer.reply(from, {:error, error_code(code), args})
   end
 
