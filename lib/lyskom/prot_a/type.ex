@@ -282,7 +282,7 @@ defmodule Lyskom.ProtA.Type do
       [author, lines, chars, marks, mi_list, ai_list] = list
       aux_items = Enum.map(ai_list, &Type.AuxItem.new/1)
       # The following line is a sign that the array handling needs to be redone.
-      mi_list = List.foldl(mi_list, [], fn n, acc -> acc ++ n end)
+      mi_list = Enum.concat(mi_list)
 
       %Type.TextStat{
         creation_time: Type.Time.new(ctime),
