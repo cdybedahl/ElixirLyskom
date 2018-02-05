@@ -1,6 +1,7 @@
 defmodule Lyskom.Server.Process do
   import Lyskom.ProtA.Error
   alias Lyskom.ProtA.Type
+  require Logger
 
   def response(:login, :success, from, [], _call_args) do
     GenServer.reply(from, :ok)
@@ -59,5 +60,22 @@ defmodule Lyskom.Server.Process do
 
   def response(:get_unread_confs, :failure, from, [code | args], _call_args) do
     GenServer.reply(from, {:error, error_code(code), args})
+  end
+
+  def response(:query_read_texts, :success, from, list, _call_args) do
+    GenServer.reply(from, Type.Membership.new(list))
+  end
+
+  def response(:query_read_texts, :failure, from, [code | args], _call_args) do
+    GenServer.reply(from, {:error, error_code(code), args})
+  end
+
+  # This should only happen while implementing new calls.
+  def response(unknown, type, from, args, call_args) do
+    Logger.info(
+      "Unkown response: #{unknown} #{type} #{inspect(args)} (Called with: #{inspect(call_args)})"
+    )
+
+    GenServer.reply(from, :what)
   end
 end

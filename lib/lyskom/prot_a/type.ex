@@ -315,6 +315,66 @@ defmodule Lyskom.ProtA.Type do
   end
 
   #############################################################################
+  defmodule Membership do
+    defstruct [
+      :position,
+      :last_time_read,
+      :conference,
+      :priority,
+      :read_ranges,
+      :added_by,
+      :added_at,
+      :type
+    ]
+
+    def new(list) do
+      [pos | list] = list
+      {ltr, list} = Enum.split(list, 9)
+      [conf, prio, ranges, by | list] = list
+      {aa, list} = Enum.split(list, 9)
+      [type] = list
+
+      %Type.Membership{
+        position: to_integer(pos),
+        last_time_read: Time.new(ltr),
+        conference: to_integer(conf),
+        priority: to_integer(prio),
+        read_ranges: Enum.map(ranges, fn [m, n] -> {to_integer(m), to_integer(n)} end),
+        added_by: to_integer(by),
+        added_at: Time.new(aa),
+        type: Type.MembershipType.new(type)
+      }
+    end
+  end
+
+  #############################################################################
+  defmodule MembershipType do
+    defstruct [
+      :invitation,
+      :passive,
+      :secret,
+      :passive_message_invert,
+      :reserved2,
+      :reserved3,
+      :reserved4,
+      :reserved5
+    ]
+
+    def new([inv, pas, sec, pmi, re2, re3, re4, re5]) do
+      %Type.MembershipType{
+        invitation: inv == ?1,
+        passive: pas == ?1,
+        secret: sec == ?1,
+        passive_message_invert: pmi == ?1,
+        reserved2: re2 == ?1,
+        reserved3: re3 == ?1,
+        reserved4: re4 == ?1,
+        reserved5: re5 == ?1
+      }
+    end
+  end
+
+  #############################################################################
   ### Encoding
   #############################################################################
 

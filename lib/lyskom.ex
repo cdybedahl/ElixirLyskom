@@ -36,4 +36,12 @@ defmodule Lyskom do
   def get_unread_confs(pers_no) do
     GenServer.call(@server, {:get_unread_confs, pers_no}, :infinity)
   end
+
+  def query_read_texts(pers_no, conf_no, want_read_ranges \\ true, max_ranges \\ 1) do
+    GenServer.call(
+      @server,
+      {:query_read_texts, pers_no, conf_no, want_read_ranges, max_ranges},
+      :infinity
+    )
+  end
 end

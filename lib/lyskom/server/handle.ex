@@ -60,6 +60,16 @@ defmodule Lyskom.Server.Handle do
     prot_a_call(:get_unread_confs, 52, from, [pers_no], state)
   end
 
+  def call({:query_read_texts, pers_no, conf_no, want_read_ranges, max_ranges}, from, state) do
+    prot_a_call(
+      :query_read_texts,
+      107,
+      from,
+      [pers_no, conf_no, boolean(want_read_ranges), max_ranges],
+      state
+    )
+  end
+
   # Helper functions ##########################################################
   def add_call_to_state(state = %{next_call_id: next_id}, call_args) do
     state = put_in(state.next_call_id, next_id + 1)
