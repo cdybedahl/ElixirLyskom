@@ -44,4 +44,12 @@ defmodule Lyskom do
       :infinity
     )
   end
+
+  def local_to_global(conf_no, first_local_no, no_of_existing_texts \\ 255) do
+    GenServer.call(
+      @server,
+      {:local_to_global, conf_no, first_local_no, no_of_existing_texts},
+      :infinity
+    )
+  end
 end

@@ -375,6 +375,35 @@ defmodule Lyskom.ProtA.Type do
   end
 
   #############################################################################
+  defmodule TextMapping do
+    defstruct [:range_begin, :range_end, :more_texts_exist, :block]
+
+    def new([rbeg, rend, more | block]) do
+      %Type.TextMapping{
+        range_begin: to_integer(rbeg),
+        range_end: to_integer(rend),
+        more_texts_exist: more == ?1,
+        block: parse_block(block)
+      }
+    end
+
+    defp parse_block(['1', first_local_no, text_no_list]) do
+      first = to_integer(first_local_no)
+      list = Enum.map(text_no_list, fn [n] -> to_integer(n) end)
+
+      Enum.zip(first..(first + Enum.count(list)), list)
+      |> Enum.filter(fn {_m, n} -> n != 0 end)
+      |> Enum.into(%{})
+    end
+
+    defp parse_block(['0', pair_list]) do
+      pair_list
+      |> Enum.map(fn [m, n] -> {to_integer(m), to_integer(n)} end)
+      |> Enum.into(%{})
+    end
+  end
+
+  #############################################################################
   ### Encoding
   #############################################################################
 

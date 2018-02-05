@@ -70,6 +70,16 @@ defmodule Lyskom.Server.Handle do
     )
   end
 
+  def call({:local_to_global, conf_no, first_local_no, no_of_existing_texts}, from, state) do
+    prot_a_call(
+      :local_to_global,
+      103,
+      from,
+      [conf_no, first_local_no, no_of_existing_texts],
+      state
+    )
+  end
+
   # Helper functions ##########################################################
   def add_call_to_state(state = %{next_call_id: next_id}, call_args) do
     state = put_in(state.next_call_id, next_id + 1)

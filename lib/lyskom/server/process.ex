@@ -46,6 +46,11 @@ defmodule Lyskom.Server.Process do
     GenServer.reply(from, Type.Membership.new(list))
   end
 
+  def response(:local_to_global, :success, from, list, _call_args) do
+    GenServer.reply(from, Type.TextMapping.new(list))
+  end
+
+  # Generic failure response handler
   def response(_call_type, :failure, from, [code | args], _call_args) do
     GenServer.reply(from, {:error, error_code(code), args})
   end
