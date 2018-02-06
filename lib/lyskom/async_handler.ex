@@ -44,6 +44,22 @@ defmodule Lyskom.AsyncHandler do
      )}
   end
 
+  def handle_cast({:async_new_text, [text_no | text_stat]}, state) do
+    {:noreply,
+     send_to_clients(
+       state,
+       {:async_new_text, to_integer(text_no), Lyskom.ProtA.Type.TextStat.new(text_stat)}
+     )}
+  end
+
+  def handle_cast({:async_deleted_text, [text_no | text_stat]}, state) do
+    {:noreply,
+     send_to_clients(
+       state,
+       {:async_deleted_text, to_integer(text_no), Lyskom.ProtA.Type.TextStat.new(text_stat)}
+     )}
+  end
+
   def handle_cast({:async_sync_db, []}, state) do
     {:noreply, send_to_clients(state, {:async_sync_db})}
   end
@@ -58,8 +74,17 @@ defmodule Lyskom.AsyncHandler do
      send_to_clients(state, {:async_logout, to_integer(pers_no), to_integer(session_no)})}
   end
 
+  def handle_cast({:async_i_am_on, [pers_no, conf_no, session_no, what, username]}, state) do
+    {:noreply,
+     send_to_clients(
+       state,
+       {:async_i_am_on, to_integer(pers_no), to_integer(conf_no), to_integer(session_no), what,
+        username}
+     )}
+  end
+
   def handle_cast({type, args}, state) do
-    Logger.info("Async #{inspect(type)} (#{inspect(args)}).")
+    Logger.info("AsyncHandler unimplemented: #{inspect(type)} (#{inspect(args)}).")
     {:noreply, send_to_clients(state, {type, args})}
   end
 
