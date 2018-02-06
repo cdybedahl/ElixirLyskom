@@ -407,7 +407,15 @@ defmodule Lyskom.ProtA.Type do
   ### Encoding
   #############################################################################
 
-  def hollerith(str) do
+  def array(list) do
+    "#{Enum.count(list)} { #{Enum.join(list, " ")} }"
+  end
+
+  def array(list, coder) do
+    "#{Enum.count(list)} { #{Enum.join(Enum.map(list, coder), " ")} }"
+  end
+
+  def hollerith(str) when is_binary(str) do
     "#{String.length(str)}H#{str}"
   end
 

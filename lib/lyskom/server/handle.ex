@@ -48,6 +48,10 @@ defmodule Lyskom.Server.Handle do
     prot_a_call(:query_async, 81, from, [], state)
   end
 
+  def call({:accept_async, request_list}, from, state) do
+    prot_a_call(:accept_async, 80, from, [array(request_list, &Integer.to_string/1)], state)
+  end
+
   def call({:get_text_stat, text_no}, from, state) do
     prot_a_call(:get_text_stat, 90, from, [text_no], state)
   end

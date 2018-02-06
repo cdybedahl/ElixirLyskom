@@ -30,6 +30,10 @@ defmodule Lyskom.Server.Process do
     GenServer.reply(from, Enum.map(asynclist, fn [n] -> List.to_integer(n) end))
   end
 
+  def response(:accept_async, :success, from, [], _call_args) do
+    GenServer.reply(from, :ok)
+  end
+
   def response(:get_text_stat, :success, from, text_stat, _call_args) do
     GenServer.reply(from, Type.TextStat.new(text_stat))
   end

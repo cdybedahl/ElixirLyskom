@@ -25,6 +25,10 @@ defmodule Lyskom do
     GenServer.call(@server, {:query_async}, :infinity)
   end
 
+  def accept_async(request_list) do
+    GenServer.call(@server, {:accept_async, request_list}, :infinity)
+  end
+
   def get_text_stat(text_no) do
     GenServer.call(@server, {:get_text_stat, text_no}, :infinity)
   end
