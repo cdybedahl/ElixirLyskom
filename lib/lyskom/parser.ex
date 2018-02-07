@@ -14,6 +14,10 @@ defmodule Lyskom.Parser do
     GenServer.cast(@me, {:incoming, token})
   end
 
+  def _name(ref) do
+    {:via, Registry, {Lyskom.Registry, {:parser, ref }}}
+  end
+
   ### Callbacks
 
   def init(:no_args) do

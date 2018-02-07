@@ -27,7 +27,11 @@ defmodule Lyskom.AsyncHandler do
     GenServer.call(@me, {:remove_client, pid})
   end
 
-  #############################################################################
+  def _name(ref) do
+    {:via, Registry, {Lyskom.Registry, {:async_handler, ref }}}
+  end
+
+#############################################################################
   ### Callbacks
   #############################################################################
 

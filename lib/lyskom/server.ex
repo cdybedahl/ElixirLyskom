@@ -26,6 +26,10 @@ defmodule Lyskom.Server do
     Enum.each(state.pending, fn {_id, {_call, from, _data}} -> GenServer.reply(from, :retry) end)
   end
 
+  def _name(ref) do
+    {:via, Registry, {Lyskom.Registry, {:server, ref }}}
+  end
+
   #############################################################################
   ## Handle calls
   #############################################################################

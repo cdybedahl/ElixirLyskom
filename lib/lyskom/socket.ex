@@ -14,6 +14,10 @@ defmodule Lyskom.Socket do
     GenServer.call(@me, {:send, msg})
   end
 
+  def _name(ref) do
+    {:via, Registry, {Lyskom.Registry, {:socket, ref }}}
+  end
+
   ### Callbacks
 
   def init(state = %{host: host, port: port}) do

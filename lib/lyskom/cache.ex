@@ -19,7 +19,11 @@ defmodule Lyskom.Cache do
     GenServer.call(@me, {:get, type, key})
   end
 
-  ### Callbacks
+  def _name(ref) do
+    {:via, Registry, {Lyskom.Registry, {:cache, ref }}}
+  end
+
+### Callbacks
 
   def init(:no_args) do
     {:ok, %{}}

@@ -1,9 +1,35 @@
 defmodule Lyskom.Application do
-  # See https://hexdocs.pm/elixir/Application.html
-  # for more information on OTP Applications
-  @moduledoc false
-
   use Application
+  @moduledoc """
+   +--------------+     +-------------------+
+   |   Registry   | <-- |   TopSupervisor   |
+   +--------------+     +-------------------+
+                          |
+                          |
+                          v
+                        +-------------------+
+                        | DynamicSupervisor |
+                        +-------------------+
+                          |
+                          |
+                          v
+   +--------------+     +-------------------+     +--------+
+   | AsyncHandler | <-- | LyskomSupervisor  | --> | Cache  |
+   +--------------+     +-------------------+     +--------+
+                          |
+                          |
+                          v
+   +--------------+     +----------------------------------+     +-----------+
+   |    Socket    | <-- |       LyskomSubSupervisor        | --> | Tokenizer |
+   +--------------+     +----------------------------------+     +-----------+
+                          |                         |
+                          |                         |
+                          v                         v
+                        +-------------------+     +--------+
+                        |      Parser       |     | Server |
+                        +-------------------+     +--------+
+
+  """
 
   def start(_type, _args) do
     sub_children = [
@@ -18,6 +44,7 @@ defmodule Lyskom.Application do
     children = [
       # Starts a worker by calling: Lyskom.Worker.start_link(arg)
       # {Lyskom.Worker, arg},
+      {Registry, keys: :unique, name: Lyskom.Registry},
       Lyskom.AsyncHandler,
       Lyskom.Cache,
       %{

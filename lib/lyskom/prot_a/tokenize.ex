@@ -29,7 +29,11 @@ defmodule Lyskom.ProtA.Tokenize do
     {:noreply, process(state)}
   end
 
-  ############################################
+  def _name(ref) do
+    {:via, Registry, {Lyskom.Registry, {:tokenize, ref }}}
+  end
+
+############################################
   # Processing
   ############################################
 
