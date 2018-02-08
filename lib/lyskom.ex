@@ -14,7 +14,11 @@ defmodule Lyskom do
   end
 
   def login(connection, id_number, password, invisible \\ false) do
-    GenServer.call(Lyskom.Server._name(connection), {:login, id_number, password, invisible}, :infinity)
+    GenServer.call(
+      Lyskom.Server._name(connection),
+      {:login, id_number, password, invisible},
+      :infinity
+    )
   end
 
   def logout(connection) do
@@ -22,11 +26,19 @@ defmodule Lyskom do
   end
 
   def lookup_z_name(connection, name, want_pers \\ true, want_confs \\ true) do
-    GenServer.call(Lyskom.Server._name(connection), {:lookup_z_name, name, want_pers, want_confs}, :infinity)
+    GenServer.call(
+      Lyskom.Server._name(connection),
+      {:lookup_z_name, name, want_pers, want_confs},
+      :infinity
+    )
   end
 
   def who_is_on(connection, want_visible \\ true, want_invisible \\ false, active_last \\ 1800) do
-    GenServer.call(Lyskom.Server._name(connection), {:who_is_on, want_visible, want_invisible, active_last}, :infinity)
+    GenServer.call(
+      Lyskom.Server._name(connection),
+      {:who_is_on, want_visible, want_invisible, active_last},
+      :infinity
+    )
   end
 
   def get_conf_stat(connection, conf_no) do
@@ -46,7 +58,11 @@ defmodule Lyskom do
   end
 
   def get_text(connection, text_no, start_char \\ 0, end_char \\ 1024 * 1024) do
-    GenServer.call(Lyskom.Server._name(connection), {:get_text, text_no, start_char, end_char}, :infinity)
+    GenServer.call(
+      Lyskom.Server._name(connection),
+      {:get_text, text_no, start_char, end_char},
+      :infinity
+    )
   end
 
   def get_unread_confs(connection, pers_no) do

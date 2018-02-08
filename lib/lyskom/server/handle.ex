@@ -90,11 +90,17 @@ defmodule Lyskom.Server.Handle do
     put_in(state.pending[next_id], call_args)
   end
 
-  def prot_a_call(call_type, call_no, from, args, state = %{name_base: name, next_call_id: next_id}) do
+  def prot_a_call(
+        call_type,
+        call_no,
+        from,
+        args,
+        state = %{name_base: name, next_call_id: next_id}
+      ) do
     [next_id, call_no | args]
     |> Enum.join(" ")
     |> Kernel.<>("\n")
-    |> Lyskom.Socket.send(Lyskom.Socket._name(name))
+    |> Lyskom.Socket.send(name)
 
     {:noreply, add_call_to_state(state, {call_type, from, args})}
   end

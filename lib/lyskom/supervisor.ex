@@ -7,7 +7,6 @@ defmodule Lyskom.Supervisor do
   end
 
   def start_link(arg) do
-    Logger.info("Supervisor start argument: #{inspect(arg)}")
     Supervisor.start_link(__MODULE__, arg, name: _name(arg))
   end
 
