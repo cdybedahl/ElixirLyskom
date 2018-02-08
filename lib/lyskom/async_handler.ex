@@ -28,10 +28,10 @@ defmodule Lyskom.AsyncHandler do
   end
 
   def _name(ref) do
-    {:via, Registry, {Lyskom.Registry, {:async_handler, ref }}}
+    {:via, Registry, {Lyskom.Registry, {:async_handler, ref}}}
   end
 
-#############################################################################
+  #############################################################################
   ### Callbacks
   #############################################################################
 

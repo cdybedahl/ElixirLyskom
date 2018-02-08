@@ -20,10 +20,10 @@ defmodule Lyskom.Cache do
   end
 
   def _name(ref) do
-    {:via, Registry, {Lyskom.Registry, {:cache, ref }}}
+    {:via, Registry, {Lyskom.Registry, {:cache, ref}}}
   end
 
-### Callbacks
+  ### Callbacks
 
   def init(:no_args) do
     {:ok, %{}}

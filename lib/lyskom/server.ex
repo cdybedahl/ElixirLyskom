@@ -27,7 +27,7 @@ defmodule Lyskom.Server do
   end
 
   def _name(ref) do
-    {:via, Registry, {Lyskom.Registry, {:server, ref }}}
+    {:via, Registry, {Lyskom.Registry, {:server, ref}}}
   end
 
   #############################################################################

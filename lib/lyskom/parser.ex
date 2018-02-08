@@ -15,7 +15,7 @@ defmodule Lyskom.Parser do
   end
 
   def _name(ref) do
-    {:via, Registry, {Lyskom.Registry, {:parser, ref }}}
+    {:via, Registry, {Lyskom.Registry, {:parser, ref}}}
   end
 
   ### Callbacks

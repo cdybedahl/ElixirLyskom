@@ -1,5 +1,6 @@
 defmodule Lyskom.Application do
   use Application
+
   @moduledoc """
    +--------------+     +-------------------+
    |   Registry   | <-- |   TopSupervisor   |
@@ -32,29 +33,18 @@ defmodule Lyskom.Application do
   """
 
   def start(_type, _args) do
-    sub_children = [
-      Lyskom.Server,
-      Lyskom.Parser,
-      Lyskom.ProtA.Tokenize,
-      Lyskom.Socket
-    ]
-
-    sub_opts = [strategy: :one_for_all, name: Lyskom.SubSupervisor]
-
     children = [
-      # Starts a worker by calling: Lyskom.Worker.start_link(arg)
-      # {Lyskom.Worker, arg},
       {Registry, keys: :unique, name: Lyskom.Registry},
-      Lyskom.AsyncHandler,
-      Lyskom.Cache,
       %{
-        id: Lyskom.SubSupervisor,
-        start: {Supervisor, :start_link, [sub_children, sub_opts]},
+        id: Lyskom.DynamicSupervisor,
+        start:
+          {DynamicSupervisor, :start_link,
+           [[strategy: :one_for_one, name: Lyskom.DynamicSupervisor]]},
         type: :supervisor
       }
     ]
 
-    opts = [strategy: :one_for_one, name: Lyskom.Supervisor]
+    opts = [strategy: :one_for_one, name: Lyskom.TopSupervisor]
     Supervisor.start_link(children, opts)
   end
 end

@@ -15,7 +15,7 @@ defmodule Lyskom.Socket do
   end
 
   def _name(ref) do
-    {:via, Registry, {Lyskom.Registry, {:socket, ref }}}
+    {:via, Registry, {Lyskom.Registry, {:socket, ref}}}
   end
 
   ### Callbacks

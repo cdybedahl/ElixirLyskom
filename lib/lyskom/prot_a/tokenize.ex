@@ -30,10 +30,10 @@ defmodule Lyskom.ProtA.Tokenize do
   end
 
   def _name(ref) do
-    {:via, Registry, {Lyskom.Registry, {:tokenize, ref }}}
+    {:via, Registry, {Lyskom.Registry, {:tokenize, ref}}}
   end
 
-############################################
+  ############################################
   # Processing
   ############################################
 
