@@ -7,19 +7,19 @@ defmodule Lyskom.Server do
 
   ### API
 
-  def start_link(_) do
-    GenServer.start_link(@me, :no_args, name: @me)
+  def start_link(name_base) do
+    GenServer.start_link(@me, name_base, name: _name(name_base))
   end
 
-  def incoming(msg) do
+  def incoming(msg, name_base) do
     # Logger.debug("Got a message: #{inspect(msg)}")
-    GenServer.cast(@me, {:incoming, msg})
+    GenServer.cast(_name(name_base), {:incoming, msg})
   end
 
   ### Callbacks
 
-  def init(:no_args) do
-    {:ok, %{next_call_id: 1, pending: %{}}}
+  def init(name_base) do
+    {:ok, %{name_base: name_base, next_call_id: 1, pending: %{}}}
   end
 
   def terminate(_reason, state) do
@@ -43,7 +43,7 @@ defmodule Lyskom.Server do
   #############################################################################
 
   def handle_cast({:incoming, [:async, _argcount, type | args]}, state) do
-    Lyskom.AsyncHandler.handle(type, args)
+    Lyskom.AsyncHandler.handle(type, args, state.name_base)
 
     {:noreply, state}
   end
@@ -53,7 +53,7 @@ defmodule Lyskom.Server do
 
     case Map.fetch(state.pending, id) do
       {:ok, {call, from, call_args}} ->
-        Lyskom.Server.Process.response(call, type, from, args, call_args)
+        Lyskom.Server.Process.response(call, type, from, args, call_args, state.name_base)
         {:noreply, put_in(state.pending, Map.delete(state.pending, id))}
 
       :error ->

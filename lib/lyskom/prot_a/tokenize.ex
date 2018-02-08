@@ -6,22 +6,22 @@ defmodule Lyskom.ProtA.Tokenize do
 
   ### API
 
-  def start_link(_) do
-    GenServer.start_link(@me, :no_args, name: @me)
+  def start_link(name_base) do
+    GenServer.start_link(@me, name_base, name: _name(name_base))
   end
 
-  def incoming(data) do
-    GenServer.cast(@me, {:incoming, data})
+  def incoming(data, name) do
+    GenServer.cast(_name(name), {:incoming, data})
   end
 
   ### Callbacks
 
-  def init(:no_args) do
-    {:ok, %{data: "", state: :start, acc: []}}
+  def init(name_base) do
+    {:ok, %{name_base: name_base, data: "", state: :start, acc: []}}
   end
 
   def handle_cast({:incoming, data}, state) do
-    Process.send_after(@me, :process, 0)
+    Process.send_after(_name(state.name_base), :process, 0)
     {:noreply, update_in(state.data, fn old -> old <> data end)}
   end
 
@@ -41,34 +41,34 @@ defmodule Lyskom.ProtA.Tokenize do
     state
   end
 
-  def process(%{data: <<next_char::8, rest::binary>>, state: :start, acc: []}) do
+  def process(%{name_base: name, data: <<next_char::8, rest::binary>>, state: :start, acc: []}) do
     case next_char do
       ?= ->
-        Lyskom.Parser.incoming(:success)
+        Lyskom.Parser.incoming(:success, name)
         process(%{data: rest, state: :start, acc: []})
 
       ?% ->
-        Lyskom.Parser.incoming(:failure)
+        Lyskom.Parser.incoming(:failure, name)
         process(%{data: rest, state: :start, acc: []})
 
       ?: ->
-        Lyskom.Parser.incoming(:async)
+        Lyskom.Parser.incoming(:async, name)
         process(%{data: rest, state: :start, acc: []})
 
       ?{ ->
-        Lyskom.Parser.incoming(:arraystart)
+        Lyskom.Parser.incoming(:arraystart, name)
         process(%{data: rest, state: :start, acc: []})
 
       ?} ->
-        Lyskom.Parser.incoming(:arrayend)
+        Lyskom.Parser.incoming(:arrayend, name)
         process(%{data: rest, state: :start, acc: []})
 
       ?* ->
-        Lyskom.Parser.incoming(:arrayempty)
+        Lyskom.Parser.incoming(:arrayempty, name)
         process(%{data: rest, state: :start, acc: []})
 
       10 ->
-        Lyskom.Parser.incoming(:msgend)
+        Lyskom.Parser.incoming(:msgend, name)
         process(%{data: rest, state: :start, acc: []})
 
       32 ->
@@ -79,15 +79,15 @@ defmodule Lyskom.ProtA.Tokenize do
     end
   end
 
-  def process(%{data: <<next_char::8, rest::binary>>, state: :content, acc: acc}) do
+  def process(%{name_base: name, data: <<next_char::8, rest::binary>>, state: :content, acc: acc}) do
     case next_char do
       32 ->
-        Lyskom.Parser.incoming(Enum.reverse(acc))
+        Lyskom.Parser.incoming(Enum.reverse(acc), name)
         process(%{data: rest, state: :start, acc: []})
 
       10 ->
-        Lyskom.Parser.incoming(Enum.reverse(acc))
-        Lyskom.Parser.incoming(:msgend)
+        Lyskom.Parser.incoming(Enum.reverse(acc), name)
+        Lyskom.Parser.incoming(:msgend, name)
         process(%{data: rest, state: :start, acc: []})
 
       ?H ->
@@ -98,7 +98,7 @@ defmodule Lyskom.ProtA.Tokenize do
     end
   end
 
-  def process(%{data: data = <<next_char::8, rest::binary>>, state: n, acc: acc})
+  def process(%{name_base: name, data: data = <<next_char::8, rest::binary>>, state: n, acc: acc})
       when is_integer(n) do
     case n do
       0 ->
@@ -106,7 +106,7 @@ defmodule Lyskom.ProtA.Tokenize do
         |> Enum.reverse()
         |> IO.iodata_to_binary()
         |> to_utf8
-        |> Lyskom.Parser.incoming()
+        |> Lyskom.Parser.incoming(name)
 
         process(%{data: data, state: :start, acc: []})
 

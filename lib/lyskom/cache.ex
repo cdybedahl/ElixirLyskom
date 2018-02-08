@@ -7,16 +7,16 @@ defmodule Lyskom.Cache do
 
   ### API
 
-  def start_link(_) do
-    GenServer.start_link(@me, :no_args, name: @me)
+  def start_link(name_base) do
+    GenServer.start_link(@me, name_base, name: _name(name_base))
   end
 
-  def put(type, key, data) do
-    GenServer.call(@me, {:put, type, key, data})
+  def put(type, key, data, name_base) do
+    GenServer.call(_name(name_base), {:put, type, key, data})
   end
 
-  def get(type, key) do
-    GenServer.call(@me, {:get, type, key})
+  def get(type, key, name_base) do
+    GenServer.call(_name(name_base), {:get, type, key})
   end
 
   def _name(ref) do
@@ -25,8 +25,8 @@ defmodule Lyskom.Cache do
 
   ### Callbacks
 
-  def init(:no_args) do
-    {:ok, %{}}
+  def init(name_base) do
+    {:ok, %{name_base: name_base}}
   end
 
   def handle_call({:put, type, key, data}, _from, state) do

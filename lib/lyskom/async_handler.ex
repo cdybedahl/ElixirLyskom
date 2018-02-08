@@ -11,20 +11,20 @@ defmodule Lyskom.AsyncHandler do
   ### API
   #############################################################################
 
-  def start_link(_) do
-    GenServer.start_link(@me, :no_args, name: @me)
+  def start_link(name_base) do
+    GenServer.start_link(@me, name_base, name: _name(name_base))
   end
 
-  def handle(type, args) do
-    GenServer.cast(@me, {async(type), args})
+  def handle(type, args, name_base) do
+    GenServer.cast(_name(name_base), {async(type), args})
   end
 
-  def add_client(pid) do
-    GenServer.call(@me, {:add_client, pid})
+  def add_client(pid, name_base) do
+    GenServer.call(_name(name_base), {:add_client, pid})
   end
 
-  def remove_client(pid) do
-    GenServer.call(@me, {:remove_client, pid})
+  def remove_client(pid, name_base) do
+    GenServer.call(_name(name_base), {:remove_client, pid})
   end
 
   def _name(ref) do
@@ -35,8 +35,8 @@ defmodule Lyskom.AsyncHandler do
   ### Callbacks
   #############################################################################
 
-  def init(:no_args) do
-    {:ok, %{clients: MapSet.new()}}
+  def init(name_base) do
+    {:ok, %{name_base: name_base, clients: MapSet.new()}}
   end
 
   #############################################################################

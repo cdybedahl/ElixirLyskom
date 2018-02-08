@@ -6,12 +6,13 @@ defmodule Lyskom.Socket do
 
   ### API
 
-  def start_link(_) do
-    GenServer.start_link(@me, Application.get_env(:lyskom, :server), name: @me)
+  def start_link(name_base) do
+    state = Application.get_env(:lyskom, :server)
+    GenServer.start_link(@me, Map.put(state, :name_base, name_base), name: _name(name_base))
   end
 
-  def send(msg) do
-    GenServer.call(@me, {:send, msg})
+  def send(msg, name) do
+    GenServer.call(_name(name), {:send, msg})
   end
 
   def _name(ref) do
@@ -39,9 +40,9 @@ defmodule Lyskom.Socket do
 
   ## Handle random messages
 
-  def handle_info({:tcp, socket, msg}, state = %{socket: socket}) do
+  def handle_info({:tcp, socket, msg}, state = %{socket: socket, name_base: name_base}) do
     # Logger.debug("Incoming: #{msg}")
-    Lyskom.ProtA.Tokenize.incoming(msg)
+    Lyskom.ProtA.Tokenize.incoming(msg, name_base)
     :ok = :inet.setopts(socket, active: :once)
     {:noreply, state}
   end

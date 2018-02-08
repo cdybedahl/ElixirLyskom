@@ -6,12 +6,12 @@ defmodule Lyskom.Parser do
 
   ### API
 
-  def start_link(_) do
-    GenServer.start_link(@me, :no_args, name: @me)
+  def start_link(name_base) do
+    GenServer.start_link(@me, name_base, name: _name(name_base))
   end
 
-  def incoming(token) do
-    GenServer.cast(@me, {:incoming, token})
+  def incoming(token, name_base) do
+    GenServer.cast(_name(name_base), {:incoming, token})
   end
 
   def _name(ref) do
@@ -20,14 +20,14 @@ defmodule Lyskom.Parser do
 
   ### Callbacks
 
-  def init(:no_args) do
-    {:ok, %{tokens: []}}
+  def init(name_base) do
+    {:ok, %{name_base: name_base, tokens: []}}
   end
 
   def handle_cast({:incoming, :msgend}, state) do
     msg = Enum.reverse(state.tokens)
     msg = process_arrays(msg)
-    Lyskom.Server.incoming(msg)
+    Lyskom.Server.incoming(msg, state.name_base)
     {:noreply, %{state | tokens: []}}
   end
 
