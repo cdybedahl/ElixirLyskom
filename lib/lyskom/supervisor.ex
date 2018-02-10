@@ -6,23 +6,23 @@ defmodule Lyskom.Supervisor do
     {:via, Registry, {Lyskom.Registry, {:supervisor, ref}}}
   end
 
-  def start_link(arg) do
-    Supervisor.start_link(__MODULE__, arg, name: _name(arg))
+  def start_link([name, host, port]) do
+    Supervisor.start_link(__MODULE__, [name, host, port], name: _name(name))
   end
 
-  def init(arg) do
+  def init([name, host, port]) do
     sub_children = [
-      {Lyskom.Server, arg},
-      {Lyskom.Parser, arg},
-      {Lyskom.ProtA.Tokenize, arg},
-      {Lyskom.Socket, arg}
+      {Lyskom.Server, name},
+      {Lyskom.Parser, name},
+      {Lyskom.ProtA.Tokenize, name},
+      {Lyskom.Socket, [name, host, port]}
     ]
 
     sub_opts = [strategy: :one_for_all]
 
     children = [
-      {Lyskom.AsyncHandler, arg},
-      {Lyskom.Cache, arg},
+      {Lyskom.AsyncHandler, name},
+      {Lyskom.Cache, name},
       %{
         id: Lyskom.SubSupervisor,
         start: {Supervisor, :start_link, [sub_children, sub_opts]},

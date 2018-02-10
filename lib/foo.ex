@@ -22,7 +22,9 @@ defmodule Foo do
         true
 
       {:async_i_am_on, pers_no, conf_no, _session_no, what, _name} ->
-        Logger.info("#{username(connection, pers_no)} i #{username(connection, conf_no)} #{what}")
+        Logger.info(
+          "#{username(connection, pers_no)} i #{username(connection, conf_no)}: #{what}"
+        )
 
       msg ->
         Logger.debug("Got a message: #{inspect(msg)}")
@@ -41,9 +43,10 @@ defmodule Foo do
   end
 
   def start do
-    {:ok, connection} = Lyskom.new()
+    {:ok, connection} = Lyskom.new('kom.lysator.liu.se')
     :ok = Lyskom.login(connection, 2429, "gnapp", true)
-    # Lyskom.AsyncHandler.add_client(spawn(Foo, :async_printer, [connection]), connection)
-    # Lyskom.accept_async(connection, [5, 6, 8, 9, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22])
+    Lyskom.AsyncHandler.add_client(spawn(Foo, :async_printer, [connection]), connection)
+    Lyskom.accept_async(connection, [5, 6, 8, 9, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22])
+    connection
   end
 end

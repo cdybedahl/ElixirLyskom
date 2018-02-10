@@ -6,8 +6,8 @@ defmodule Lyskom.Socket do
 
   ### API
 
-  def start_link(name_base) do
-    state = Application.get_env(:lyskom, :server)
+  def start_link([name_base, host, port]) do
+    state = %{host: host, port: port}
     GenServer.start_link(@me, Map.put(state, :name_base, name_base), name: _name(name_base))
   end
 

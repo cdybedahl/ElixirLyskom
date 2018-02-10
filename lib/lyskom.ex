@@ -1,13 +1,13 @@
 defmodule Lyskom do
   require Logger
 
-  def new() do
+  def new(host, port \\ 4894) do
     name_base = make_ref()
 
     {:ok, _pid} =
       DynamicSupervisor.start_child(
         Lyskom.DynamicSupervisor,
-        {Lyskom.Supervisor, name_base}
+        {Lyskom.Supervisor, [name_base, host, port]}
       )
 
     {:ok, name_base}
