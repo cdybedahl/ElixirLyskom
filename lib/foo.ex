@@ -9,6 +9,9 @@ defmodule Foo do
       {:async_new_text, no, stat} ->
         Logger.info("#{username(connection, stat.author)} created text #{no}.")
 
+      {:async_deleted_text, no, _stat} ->
+        Logger.info("Text number #{no} was deleted.")
+
       {:async_login, _user, _session} ->
         # Logger.info("User #{username(connection, user)} logged in.")
         true
