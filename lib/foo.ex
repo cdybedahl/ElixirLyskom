@@ -7,7 +7,9 @@ defmodule Foo do
         Logger.info("#{username(connection, stat.author)} created text #{no}.")
 
       {:async_new_text, no, stat} ->
-        Logger.info("#{username(connection, stat.author)} created text #{no}.")
+        [:yellow, "#{username(connection, stat.author)} created text ", :bright, "#{no}."]
+        |> IO.ANSI.format()
+        |> Logger.info()
 
       {:async_deleted_text, no, _stat} ->
         Logger.info("Text number #{no} was deleted.")
@@ -25,9 +27,13 @@ defmodule Foo do
         true
 
       {:async_i_am_on, pers_no, conf_no, _session_no, what, _name} ->
-        Logger.info(
-          "#{username(connection, pers_no)} i #{username(connection, conf_no)}: #{what}"
-        )
+        [
+          "#{username(connection, pers_no)} i #{username(connection, conf_no)}: ",
+          :white,
+          "#{what}"
+        ]
+        |> IO.ANSI.format()
+        |> Logger.info()
 
       msg ->
         Logger.debug("Got a message: #{inspect(msg)}")
