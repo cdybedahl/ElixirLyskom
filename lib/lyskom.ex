@@ -25,6 +25,10 @@ defmodule Lyskom do
     GenServer.call(Lyskom.Server._name(connection), {:logout}, :infinity)
   end
 
+  def get_info(connection) do
+    GenServer.call(Lyskom.Server._name(connection), {:get_info}, :infinity)
+  end
+
   def lookup_z_name(connection, name, want_pers \\ true, want_confs \\ true) do
     GenServer.call(
       Lyskom.Server._name(connection),

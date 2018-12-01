@@ -14,6 +14,10 @@ defmodule Lyskom.Server.Handle do
     prot_a_call(:logout, 1, from, [], state)
   end
 
+  def call({:get_info}, from, state) do
+    prot_a_call(:get_info, 94, from, [], state)
+  end
+
   def call({:lookup_z_name, name, want_pers, want_confs}, from, state) do
     prot_a_call(
       :lookup_z_name,
