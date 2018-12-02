@@ -13,15 +13,15 @@ defmodule Lyskom.MixProject do
 
   def application do
     [
-      extra_applications: [:logger],
+      extra_applications: [:logger, :iconv],
       mod: {Lyskom.Application, []}
     ]
   end
 
   defp deps do
     [
-      {:codepagex, "~> 0.1.4"},
-      {:timex, "~> 3.0"}
+      {:timex, "~> 3.0"},
+      {:iconv, "~> 1.0"}
     ]
   end
 end

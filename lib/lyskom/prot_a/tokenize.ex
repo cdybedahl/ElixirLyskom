@@ -117,7 +117,6 @@ defmodule Lyskom.ProtA.Tokenize do
   end
 
   def to_utf8(bin) do
-    {:ok, str} = Codepagex.to_string(bin, :iso_8859_1)
-    str
+    :iconv.convert("latin1", "utf8", bin)
   end
 end
