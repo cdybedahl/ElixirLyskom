@@ -6,7 +6,15 @@ defmodule Lyskom.ProtA.Type do
 
   #############################################################################
   defmodule Info do
-    defstruct [:version, :conf_pres_conf, :pers_pres_conf, :motd_conf, :kom_news_conf, :motd_of_lyskom, :aux_items]
+    defstruct [
+      :version,
+      :conf_pres_conf,
+      :pers_pres_conf,
+      :motd_conf,
+      :kom_news_conf,
+      :motd_of_lyskom,
+      :aux_items
+    ]
 
     def new(list) do
       [version, conf_pres, pers_pres, motd_conf, news, motd, auxitemlist] = list
