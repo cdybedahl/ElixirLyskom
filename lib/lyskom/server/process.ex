@@ -15,6 +15,10 @@ defmodule Lyskom.Server.Process do
     GenServer.reply(from, Type.Info.new(info))
   end
 
+  def response(:get_time, :success, from, time, _call_args, _name_base) do
+    GenServer.reply(from, Type.Time.new(time))
+  end
+
   def response(:lookup_z_name, :success, from, [infolist], _call_args, _name_base) do
     GenServer.reply(from, Enum.map(infolist, fn c -> Type.ConfZInfo.new(c) end))
   end
