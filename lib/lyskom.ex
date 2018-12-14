@@ -92,4 +92,12 @@ defmodule Lyskom do
       :infinity
     )
   end
+
+  def find_next_text_no(connection, start_no) do
+    GenServer.call(
+      Lyskom.Server._name(connection),
+      {:find_next_text_no, start_no},
+      :infinity
+    )
+  end
 end
