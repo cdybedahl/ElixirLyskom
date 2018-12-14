@@ -114,5 +114,4 @@ defmodule Lyskom.ProtA.Tokenize do
         process(%{name_base: name, data: rest, state: n - 1, acc: [next_char | acc]})
     end
   end
-
 end

@@ -2,6 +2,7 @@ defmodule Lyskom.AsyncHandler do
   use GenServer
   require Logger
 
+  alias Lyskom.ProtA.Type
   import Lyskom.ProtA.Async
   import List, only: [to_integer: 1]
 
@@ -44,7 +45,7 @@ defmodule Lyskom.AsyncHandler do
     {:noreply,
      send_to_clients(
        state,
-       {:async_new_text_old, to_integer(text_no), Lyskom.ProtA.Type.TextStat.old(text_stat_old)}
+       {:async_new_text_old, to_integer(text_no), Type.TextStat.old(text_stat_old)}
      )}
   end
 
@@ -52,7 +53,7 @@ defmodule Lyskom.AsyncHandler do
     {:noreply,
      send_to_clients(
        state,
-       {:async_new_text, to_integer(text_no), Lyskom.ProtA.Type.TextStat.new(text_stat)}
+       {:async_new_text, to_integer(text_no), Type.TextStat.new(text_stat)}
      )}
   end
 
@@ -60,7 +61,7 @@ defmodule Lyskom.AsyncHandler do
     {:noreply,
      send_to_clients(
        state,
-       {:async_deleted_text, to_integer(text_no), Lyskom.ProtA.Type.TextStat.new(text_stat)}
+       {:async_deleted_text, to_integer(text_no), Type.TextStat.new(text_stat)}
      )}
   end
 
@@ -82,8 +83,8 @@ defmodule Lyskom.AsyncHandler do
     {:noreply,
      send_to_clients(
        state,
-       {:async_i_am_on, to_integer(pers_no), to_integer(conf_no), to_integer(session_no), what,
-        username}
+       {:async_i_am_on, to_integer(pers_no), to_integer(conf_no), to_integer(session_no),
+        Type.decode_string(what), Type.decode_string(username)}
      )}
   end
 

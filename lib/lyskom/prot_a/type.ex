@@ -5,6 +5,14 @@ defmodule Lyskom.ProtA.Type do
   import List, only: [to_integer: 1]
 
   #############################################################################
+  ### Helpers
+  #############################################################################
+
+  def decode_string(bin) do
+    :iconv.convert("latin1", "utf8", bin)
+  end
+
+  #############################################################################
   defmodule Info do
     defstruct [
       :version,
@@ -48,7 +56,7 @@ defmodule Lyskom.ProtA.Type do
         created_at: Type.Time.new(created_at),
         flags: Type.AuxItemFlags.new(flags),
         inherit_limit: to_integer(limit),
-        data: data
+        data: Type.decode_string(data)
       }
     end
   end
@@ -198,7 +206,7 @@ defmodule Lyskom.ProtA.Type do
         working_conference: to_integer(conf),
         idle_time: to_integer(idle),
         flags: Type.SessionFlags.new(flags),
-        what_am_i_doing: what
+        what_am_i_doing: Type.decode_string(what)
       }
     end
   end
@@ -261,7 +269,7 @@ defmodule Lyskom.ProtA.Type do
       auxitems = Enum.map(auxitemlist, &Type.AuxItem.new/1)
 
       %Type.Conference{
-        name: name,
+        name: Type.decode_string(name),
         type: Type.ConfType.new(type),
         creation_time: Type.Time.new(ctime),
         last_written: Type.Time.new(written),
