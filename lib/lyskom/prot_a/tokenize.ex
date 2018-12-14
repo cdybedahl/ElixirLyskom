@@ -106,7 +106,6 @@ defmodule Lyskom.ProtA.Tokenize do
         acc
         |> Enum.reverse()
         |> IO.iodata_to_binary()
-        |> to_utf8
         |> Lyskom.Parser.incoming(name)
 
         process(%{name_base: name, data: data, state: :start, acc: []})
@@ -116,7 +115,4 @@ defmodule Lyskom.ProtA.Tokenize do
     end
   end
 
-  def to_utf8(bin) do
-    :iconv.convert("latin1", "utf8", bin)
-  end
 end
