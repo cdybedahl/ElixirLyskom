@@ -3,7 +3,11 @@ defmodule Lyskom.Server.Process do
   alias Lyskom.ProtA.Type
   require Logger
 
-  def response(:login, :success, from, [], _call_args, _name_base) do
+  def response(:login, :success, from, [], [id, pass, invis], name_base) do
+    [_, pass] = String.split(pass, "H", parts: 2)
+    invis = invis == 1
+    Lyskom.Cache.logged_in?(name_base, id, pass, invis)
+
     GenServer.reply(from, :ok)
   end
 

@@ -27,7 +27,7 @@ defmodule Lyskom.Socket do
     {:ok, "LysKOM\n"} = :gen_tcp.recv(socket, 0)
     :ok = :inet.setopts(socket, active: :once)
     Logger.debug("Connection to server established.")
-    {:ok, Map.put(state, :socket, socket)}
+    {:ok, Map.put(state, :socket, socket), {:continue, :try_login}}
   end
 
   ## Handle calls
@@ -44,6 +44,19 @@ defmodule Lyskom.Socket do
     # Logger.debug("Incoming: #{msg}")
     Lyskom.ProtA.Tokenize.incoming(msg, name_base)
     :ok = :inet.setopts(socket, active: :once)
+    {:noreply, state}
+  end
+
+  ## Handle post-initialization
+  def handle_continue(:try_login, state) do
+    case Lyskom.Cache.logged_in?(state.name_base) do
+      args when is_list(args) ->
+        spawn(Lyskom, :login, args)
+
+      nil ->
+        true
+    end
+
     {:noreply, state}
   end
 end

@@ -23,10 +23,18 @@ defmodule Lyskom.Cache do
     {:via, Registry, {Lyskom.Registry, {:cache, ref}}}
   end
 
+  def logged_in?(name_base, id, pass, invis) do
+    GenServer.cast(_name(name_base), {:set_login, [name_base, id, pass, invis]})
+  end
+
+  def logged_in?(name_base) do
+    GenServer.call(_name(name_base), {:get_login})
+  end
+
   ### Callbacks
 
   def init(name_base) do
-    {:ok, %{name_base: name_base}}
+    {:ok, %{name_base: name_base, login_args: nil}}
   end
 
   def handle_call({:put, type, key, data}, _from, state) do
@@ -45,5 +53,13 @@ defmodule Lyskom.Cache do
     else
       {:reply, nil, state}
     end
+  end
+
+  def handle_call({:get_login}, _from, state) do
+    {:reply, state.login_args, state}
+  end
+
+  def handle_cast({:set_login, args}, state) do
+    {:noreply, Map.put(state, :login_args, args)}
   end
 end
