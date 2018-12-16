@@ -100,4 +100,32 @@ defmodule Lyskom do
       :infinity
     )
   end
+
+  ## Convenience functions
+
+  def text_and_stat(connection, text_no) do
+    text_stat = get_text_stat(connection, text_no)
+    text_body = get_text(connection, text_no, 0, text_stat.no_of_chars)
+    [subject, text_body] = String.split(text_body, "\n", parts: 2)
+
+    case Enum.find(text_stat.aux_items, &(&1.tag == 1)) do
+      aux = %Lyskom.ProtA.Type.AuxItem{} ->
+        if String.starts_with?(aux.data, "text/") do
+          case Regex.run(~r"text/[^;]+;charset=(.*)", aux.data) do
+            nil ->
+              {text_stat, :iconv.convert("latin1", "utf8", subject),
+               :iconv.convert("latin1", "utf8", text_body)}
+
+            [_, type] ->
+              {text_stat, :iconv.convert(type, "utf8", subject),
+               :iconv.convert(type, "utf8", text_body)}
+          end
+        else
+          {text_stat, :iconv.convert("latin1", "utf8", subject), text_body}
+        end
+
+      nil ->
+        {text_stat, subject, text_body}
+    end
+  end
 end
