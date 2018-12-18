@@ -96,6 +96,10 @@ defmodule Lyskom.Server.Handle do
     prot_a_call(:find_next_text_no, 60, from, [start_no], state)
   end
 
+  def call({:get_person_stat, pers_no}, from, state) do
+    prot_a_call(:get_person_stat, 49, from, [pers_no], state)
+  end
+
   # Helper functions ##########################################################
   def add_call_to_state(state = %{next_call_id: next_id}, call_args) do
     state = put_in(state.next_call_id, next_id + 1)

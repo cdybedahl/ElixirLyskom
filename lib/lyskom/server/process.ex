@@ -70,6 +70,10 @@ defmodule Lyskom.Server.Process do
     GenServer.reply(from, List.to_integer(text_no))
   end
 
+  def response(:get_person_stat, :success, from, list, _call_args, _name_base) do
+    GenServer.reply(from, Type.Person.new(list))
+  end
+
   # Generic failure response handler
   def response(_call_type, :failure, from, [code | args], _call_args, _name_base) do
     GenServer.reply(from, {:error, error_code(code), args})

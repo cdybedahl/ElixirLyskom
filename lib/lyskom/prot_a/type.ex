@@ -440,6 +440,131 @@ defmodule Lyskom.ProtA.Type do
   end
 
   #############################################################################
+  defmodule PersonalFlags do
+    defstruct [:unread_is_secret, :flg2, :flg3, :flg4, :flg5, :flg6, :flg7, :flg8]
+
+    def new([uis, f2, f3, f4, f5, f6, f7, f8]) do
+      %Type.PersonalFlags{
+        unread_is_secret: uis == ?1,
+        flg2: f2 == ?1,
+        flg3: f3 == ?1,
+        flg4: f4 == ?1,
+        flg5: f5 == ?1,
+        flg6: f6 == ?1,
+        flg7: f7 == ?1,
+        flg8: f8 == ?1
+      }
+    end
+  end
+
+  #############################################################################
+  defmodule PrivBits do
+    defstruct [
+      :wheel,
+      :admin,
+      :statistic,
+      :create_pers,
+      :create_conf,
+      :change_name,
+      :flg7,
+      :flg8,
+      :flg9,
+      :flg10,
+      :flg11,
+      :flg12,
+      :flg13,
+      :flg14,
+      :flg15,
+      :flg16
+    ]
+
+    def new([w, a, s, cp, cc, cn, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16]) do
+      %Type.PrivBits{
+        wheel: w == ?1,
+        admin: a == ?1,
+        statistic: s == ?1,
+        create_pers: cp == ?1,
+        create_conf: cc == ?1,
+        change_name: cn == ?1,
+        flg7: f7 == ?1,
+        flg8: f8 == ?1,
+        flg9: f9 == ?1,
+        flg10: f10 == ?1,
+        flg11: f11 == ?1,
+        flg12: f12 == ?1,
+        flg13: f13 == ?1,
+        flg14: f14 == ?1,
+        flg15: f15 == ?1,
+        flg16: f16 == ?1
+      }
+    end
+  end
+
+  #############################################################################
+  defmodule Person do
+    defstruct [
+      :username,
+      :privileges,
+      :flags,
+      :last_login,
+      :user_area,
+      :total_time_present,
+      :sessions,
+      :created_lines,
+      :created_bytes,
+      :read_texts,
+      :no_of_text_fetches,
+      :created_persons,
+      :created_confs,
+      :first_created_local_no,
+      :no_of_created_texts,
+      :no_of_marks,
+      :no_of_confs
+    ]
+
+    def new(list) do
+      [uname, privs, flags | list] = list
+      {last_login, list} = Enum.split(list, 9)
+
+      [
+        area,
+        total,
+        sessions,
+        clines,
+        cbytes,
+        read,
+        fetches,
+        cpersons,
+        cconfs,
+        first,
+        no_texts,
+        no_marks,
+        no_confs
+      ] = list
+
+      %Type.Person{
+        username: uname,
+        privileges: Type.PrivBits.new(privs),
+        flags: Type.PersonalFlags.new(flags),
+        last_login: Type.Time.new(last_login),
+        user_area: to_integer(area),
+        total_time_present: to_integer(total),
+        sessions: to_integer(sessions),
+        created_lines: to_integer(clines),
+        created_bytes: to_integer(cbytes),
+        read_texts: to_integer(read),
+        no_of_text_fetches: to_integer(fetches),
+        created_persons: to_integer(cpersons),
+        created_confs: to_integer(cconfs),
+        first_created_local_no: to_integer(first),
+        no_of_created_texts: to_integer(no_texts),
+        no_of_marks: to_integer(no_marks),
+        no_of_confs: to_integer(no_confs)
+      }
+    end
+  end
+
+  #############################################################################
   ### Encoding
   #############################################################################
 

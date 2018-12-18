@@ -101,6 +101,10 @@ defmodule Lyskom do
     )
   end
 
+  def get_person_stat(connection, pers_no) do
+    GenServer.call(Lyskom.Server._name(connection), {:get_person_stat, pers_no}, :infinity)
+  end
+
   ## Convenience functions
 
   def text_and_stat(connection, text_no) do
