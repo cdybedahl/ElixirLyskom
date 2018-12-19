@@ -105,6 +105,18 @@ defmodule Lyskom do
     GenServer.call(Lyskom.Server._name(connection), {:get_person_stat, pers_no}, :infinity)
   end
 
+  def mark_as_read(connection, conf_no, text_no) when is_integer(text_no) do
+    mark_as_read(connection, conf_no, [text_no])
+  end
+
+  def mark_as_read(connection, conf_no, local_texts) when is_list(local_texts) do
+    GenServer.call(
+      Lyskom.Server._name(connection),
+      {:mark_as_read, conf_no, local_texts},
+      :infinity
+    )
+  end
+
   ## Convenience functions
 
   def text_and_stat(connection, text_no) do

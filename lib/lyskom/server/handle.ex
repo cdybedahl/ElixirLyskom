@@ -100,6 +100,16 @@ defmodule Lyskom.Server.Handle do
     prot_a_call(:get_person_stat, 49, from, [pers_no], state)
   end
 
+  def call({:mark_as_read, conf_no, local_texts}, from, state) do
+    prot_a_call(
+      :mark_as_read,
+      27,
+      from,
+      [conf_no, array(local_texts, &Integer.to_string/1)],
+      state
+    )
+  end
+
   # Helper functions ##########################################################
   def add_call_to_state(state = %{next_call_id: next_id}, call_args) do
     state = put_in(state.next_call_id, next_id + 1)
