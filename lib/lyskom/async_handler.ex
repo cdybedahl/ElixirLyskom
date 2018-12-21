@@ -88,6 +88,21 @@ defmodule Lyskom.AsyncHandler do
      )}
   end
 
+  def handle_cast({:async_text_aux_changed, [text_no, deleted, added]}, state) do
+    {
+      :noreply,
+      send_to_clients(
+        state,
+        {
+          :async_text_aux_changed,
+          to_integer(text_no),
+          Enum.map(deleted, &Lyskom.ProtA.Type.AuxItem.new/1),
+          Enum.map(added, &Lyskom.ProtA.Type.AuxItem.new/1)
+        }
+      )
+    }
+  end
+
   def handle_cast({type, args}, state) do
     Logger.info("AsyncHandler unimplemented: #{inspect(type)} (#{inspect(args)}).")
     {:noreply, send_to_clients(state, {type, args})}
