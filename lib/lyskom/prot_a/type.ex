@@ -93,58 +93,79 @@ defmodule Lyskom.ProtA.Type do
     defstruct [:type, :data]
 
     def new(list) do
-      Enum.reverse(_new(list, []))
+      new(list, [])
     end
 
-    def _new([], acc) do
+    defp new([], acc) do
       acc
+      |> fix()
+      |> Enum.reverse()
     end
 
     # TODO: Add all misc_info types
-    def _new(['0', conf_no | tail], acc) do
-      _new(tail, [{:recpt, to_integer(conf_no)} | acc])
+    defp new(['0', conf_no | tail], acc) do
+      new(tail, [{:recpt, to_integer(conf_no)} | acc])
     end
 
-    def _new(['1', conf_no | tail], acc) do
-      _new(tail, [{:cc_recpt, to_integer(conf_no)} | acc])
+    defp new(['1', conf_no | tail], acc) do
+      new(tail, [{:cc_recpt, to_integer(conf_no)} | acc])
     end
 
-    def _new(['2', text_no | tail], acc) do
-      _new(tail, [{:comm_to, to_integer(text_no)} | acc])
+    defp new(['2', text_no | tail], acc) do
+      new(tail, [{:comm_to, to_integer(text_no)} | acc])
     end
 
-    def _new(['3', text_no | tail], acc) do
-      _new(tail, [{:comm_in, to_integer(text_no)} | acc])
+    defp new(['3', text_no | tail], acc) do
+      new(tail, [{:comm_in, to_integer(text_no)} | acc])
     end
 
-    def _new(['4', text_no | tail], acc) do
-      _new(tail, [{:footn_to, to_integer(text_no)} | acc])
+    defp new(['4', text_no | tail], acc) do
+      new(tail, [{:footn_to, to_integer(text_no)} | acc])
     end
 
-    def _new(['5', text_no | tail], acc) do
-      _new(tail, [{:footn_in, to_integer(text_no)} | acc])
+    defp new(['5', text_no | tail], acc) do
+      new(tail, [{:footn_in, to_integer(text_no)} | acc])
     end
 
-    def _new(['6', local_text_no | tail], acc) do
-      _new(tail, [{:loc_no, to_integer(local_text_no)} | acc])
+    defp new(['6', local_text_no | tail], acc) do
+      new(tail, [{:loc_no, to_integer(local_text_no)} | acc])
     end
 
-    def _new(['7' | tail], acc) do
+    defp new(['7' | tail], acc) do
       {t, tail} = Enum.split(tail, 9)
-      _new(tail, [{:rec_time, Type.Time.new(t)} | acc])
+      new(tail, [{:rec_time, Type.Time.new(t)} | acc])
     end
 
-    def _new(['8', pers_no | tail], acc) do
-      _new(tail, [{:sent_by, to_integer(pers_no)} | acc])
+    defp new(['8', pers_no | tail], acc) do
+      new(tail, [{:sent_by, to_integer(pers_no)} | acc])
     end
 
-    def _new(['9' | tail], acc) do
+    defp new(['9' | tail], acc) do
       {t, tail} = Enum.split(tail, 9)
-      _new(tail, [{:sent_at, Type.Time.new(t)} | acc])
+      new(tail, [{:sent_at, Type.Time.new(t)} | acc])
     end
 
-    def _new(['15', conf_no | tail], acc) do
-      _new(tail, [{:bcc_recpt, to_integer(conf_no)} | acc])
+    defp new(['15', conf_no | tail], acc) do
+      new(tail, [{:bcc_recpt, to_integer(conf_no)} | acc])
+    end
+
+    defp fix([]) do
+      []
+    end
+    defp fix([{type, _} = head|tail]) do
+      fix(tail, [head, type: type], [])
+    end
+    defp fix([], cur, acc) do
+      [cur | acc]
+      |> Enum.reverse()
+      |> Enum.map(&Map.new/1)
+    end
+    defp fix([{type, _} = head|tail], cur, acc) do
+      if type in [:recpt, :cc_recpt, :bcc_recpt, :comm_in, :comm_to, :footn_to, :footn_in] do
+        fix(tail, [head, type: type], [cur|acc])
+      else
+        fix(tail, [head|cur], acc)
+      end
     end
   end
 
