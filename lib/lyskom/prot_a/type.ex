@@ -98,8 +98,8 @@ defmodule Lyskom.ProtA.Type do
 
     defp new([], acc) do
       acc
-      |> fix()
       |> Enum.reverse()
+      |> fix()
     end
 
     # TODO: Add all misc_info types
@@ -149,16 +149,17 @@ defmodule Lyskom.ProtA.Type do
       new(tail, [{:bcc_recpt, to_integer(conf_no)} | acc])
     end
 
-    defp fix([]) do
+    def fix([]) do
       []
     end
-    defp fix([{type, _} = head|tail]) do
-      fix(tail, [head, type: type], [])
+    def fix(list) do
+      fix(list, [], [])
     end
     defp fix([], cur, acc) do
       [cur | acc]
       |> Enum.reverse()
       |> Enum.map(&Map.new/1)
+      |> Enum.reject(fn n -> n == %{} end)
     end
     defp fix([{type, _} = head|tail], cur, acc) do
       if type in [:recpt, :cc_recpt, :bcc_recpt, :comm_in, :comm_to, :footn_to, :footn_in] do
