@@ -47,6 +47,11 @@ defmodule Foo do
         |> IO.ANSI.format()
         |> IO.puts()
 
+      {:async_new_name, _conf_no, old_name, new_name} ->
+        [:white, old_name, :yellow, " changed name to ", :white, new_name]
+        |> IO.ANSI.format()
+        |> IO.puts()
+
       msg ->
         Logger.debug("Got a message: #{inspect(msg)}")
     after
@@ -63,6 +68,7 @@ defmodule Foo do
       |> Enum.filter(fn mi -> mi.type in [:recpt, :cc_recpt, :bcc_recpt] end)
       |> Enum.each(fn mi ->
         Lyskom.mark_as_read(connection, Map.get(mi, mi.type), mi.loc_no)
+
         [
           :green,
           "Filtered local text ",
@@ -71,7 +77,7 @@ defmodule Foo do
           :green,
           " in conference ",
           :white,
-          "#{username(connection,Map.get(mi, mi.type))}."
+          "#{username(connection, Map.get(mi, mi.type))}."
         ]
         |> IO.ANSI.format()
         |> IO.puts()

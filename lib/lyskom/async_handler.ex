@@ -103,6 +103,15 @@ defmodule Lyskom.AsyncHandler do
     }
   end
 
+  def handle_cast({:async_new_name, [conf_no, old_name, new_name]}, state) do
+    {:noreply,
+     send_to_clients(
+       state,
+       {:async_new_name, to_integer(conf_no), Type.decode_string(old_name),
+        Type.decode_string(new_name)}
+     )}
+  end
+
   def handle_cast({type, args}, state) do
     Logger.info("AsyncHandler unimplemented: #{inspect(type)} (#{inspect(args)}).")
     {:noreply, send_to_clients(state, {type, args})}

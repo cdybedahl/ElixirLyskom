@@ -152,20 +152,23 @@ defmodule Lyskom.ProtA.Type do
     def fix([]) do
       []
     end
+
     def fix(list) do
       fix(list, [], [])
     end
+
     defp fix([], cur, acc) do
       [cur | acc]
       |> Enum.reverse()
       |> Enum.map(&Map.new/1)
       |> Enum.reject(fn n -> n == %{} end)
     end
-    defp fix([{type, _} = head|tail], cur, acc) do
+
+    defp fix([{type, _} = head | tail], cur, acc) do
       if type in [:recpt, :cc_recpt, :bcc_recpt, :comm_in, :comm_to, :footn_to, :footn_in] do
-        fix(tail, [head, type: type], [cur|acc])
+        fix(tail, [head, type: type], [cur | acc])
       else
-        fix(tail, [head|cur], acc)
+        fix(tail, [head | cur], acc)
       end
     end
   end
