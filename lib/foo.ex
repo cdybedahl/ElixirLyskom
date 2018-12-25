@@ -60,7 +60,7 @@ defmodule Foo do
   def filter_text(connection, stat) do
     if stat.author in @filtered do
       stat.misc_info
-      |> Enum.filter(fn mi -> mi.type in [:recpt, :cc_recpt, :bcc_recpt, :loc_no] end)
+      |> Enum.filter(fn mi -> mi.type in [:recpt, :cc_recpt, :bcc_recpt] end)
       |> Enum.each(fn mi ->
         Lyskom.mark_as_read(connection, Map.get(mi, mi.type), mi.loc_no)
         [
