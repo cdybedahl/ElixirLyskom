@@ -63,7 +63,7 @@ defmodule Lyskom.ProtA.Type do
 
   #############################################################################
   defmodule AuxItemFlags do
-    defstruct [
+    @keys [
       :deleted,
       :inherit,
       :secret,
@@ -73,6 +73,7 @@ defmodule Lyskom.ProtA.Type do
       :reserved3,
       :reserved4
     ]
+    defstruct @keys
 
     def new([del, inh, sec, hid, don, re2, re3, re4]) do
       %Type.AuxItemFlags{
@@ -85,6 +86,10 @@ defmodule Lyskom.ProtA.Type do
         reserved3: re3 == ?1,
         reserved4: re4 == ?1
       }
+    end
+
+    def prot_a(%Type.AuxItemFlags{} = flags) do
+      Type.bitstring(@keys, flags)
     end
   end
 
@@ -188,14 +193,15 @@ defmodule Lyskom.ProtA.Type do
 
   #############################################################################
   defmodule ConfType do
-    defstruct rd_prot: false,
-              original: false,
-              secret: false,
-              letterbox: false,
-              allow_anonymous: false,
-              forbid_secret: false,
-              reserved2: false,
-              reserved3: false
+    @keys rd_prot: false,
+          original: false,
+          secret: false,
+          letterbox: false,
+          allow_anonymous: false,
+          forbid_secret: false,
+          reserved2: false,
+          reserved3: false
+    defstruct @keys
 
     def new([rd, orig, secret, letter]) do
       %Type.ConfType{
@@ -217,6 +223,10 @@ defmodule Lyskom.ProtA.Type do
         reserved2: res2 == ?1,
         reserved3: res3 == ?1
       }
+    end
+
+    def prot_a(%Type.ConfType{} = flags) do
+      Type.bitstring(@keys, flags)
     end
   end
 
@@ -466,7 +476,8 @@ defmodule Lyskom.ProtA.Type do
 
   #############################################################################
   defmodule PersonalFlags do
-    defstruct [:unread_is_secret, :flg2, :flg3, :flg4, :flg5, :flg6, :flg7, :flg8]
+    @keys [:unread_is_secret, :flg2, :flg3, :flg4, :flg5, :flg6, :flg7, :flg8]
+    defstruct @keys
 
     def new([uis, f2, f3, f4, f5, f6, f7, f8]) do
       %Type.PersonalFlags{
@@ -479,6 +490,10 @@ defmodule Lyskom.ProtA.Type do
         flg7: f7 == ?1,
         flg8: f8 == ?1
       }
+    end
+
+    def prot_a(flags) do
+      Type.bitstring(@keys, flags)
     end
   end
 
@@ -611,5 +626,11 @@ defmodule Lyskom.ProtA.Type do
 
   def boolean(false) do
     0
+  end
+
+  def bitstring(keys, flags) do
+    for n <- keys do
+      Map.get(%{true: ?1, false: ?0}, Map.get(flags, n))
+    end
   end
 end
