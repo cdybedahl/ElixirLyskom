@@ -9,11 +9,7 @@ defmodule Foo do
         IO.puts("#{username(connection, stat.author)} created text #{no}.")
 
       {:async_new_text, no, stat} ->
-        filter_text(connection, stat)
-
-        [:blue, "#{username(connection, stat.author)} created text ", :bright, "#{no}."]
-        |> IO.ANSI.format()
-        |> IO.puts()
+        filter_text(connection, no, stat)
 
       {:async_deleted_text, no, _stat} ->
         IO.puts("Text number #{no} was deleted.")
@@ -62,7 +58,7 @@ defmodule Foo do
     Foo.async_printer(connection)
   end
 
-  def filter_text(connection, stat) do
+  def filter_text(connection, no, stat) do
     if stat.author in @filtered do
       stat.misc_info
       |> Enum.filter(fn mi -> mi.type in [:recpt, :cc_recpt, :bcc_recpt] end)
@@ -70,6 +66,7 @@ defmodule Foo do
         Lyskom.mark_as_read(connection, Map.get(mi, mi.type), mi.loc_no)
 
         [
+          :light_black_background,
           :green,
           "Filtered local text ",
           :white,
@@ -82,6 +79,10 @@ defmodule Foo do
         |> IO.ANSI.format()
         |> IO.puts()
       end)
+    else
+      [:yellow, "#{username(connection, stat.author)} created text ", :bright, "#{no}."]
+      |> IO.ANSI.format()
+      |> IO.puts()
     end
   end
 
