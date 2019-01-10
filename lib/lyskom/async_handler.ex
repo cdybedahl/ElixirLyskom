@@ -112,6 +112,14 @@ defmodule Lyskom.AsyncHandler do
      )}
   end
 
+  def handle_cast({:async_send_message, [to, from, msg]}, state) do
+    {:noreply,
+     send_to_clients(
+       state,
+       {:async_send_message, to_integer(to), to_integer(from), Type.decode_string(msg)}
+     )}
+  end
+
   def handle_cast({type, args}, state) do
     Logger.info("AsyncHandler unimplemented: #{inspect(type)} (#{inspect(args)}).")
     {:noreply, send_to_clients(state, {type, args})}
