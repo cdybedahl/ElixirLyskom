@@ -118,6 +118,14 @@ defmodule Lyskom do
     )
   end
 
+  def send_message(connection, recipient, message) do
+    GenServer.call(
+      Lyskom.Server._name(connection),
+      {:send_message, recipient, message},
+      :infinity
+    )
+  end
+
   ## Convenience functions
 
   def text_and_stat(connection, text_no) do

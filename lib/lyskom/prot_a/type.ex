@@ -12,6 +12,10 @@ defmodule Lyskom.ProtA.Type do
     :iconv.convert("latin1", "utf8", bin)
   end
 
+  def encode_string(str) do
+    :iconv.convert("utf8", "iso-8859-1", str)
+  end
+
   #############################################################################
   defmodule Info do
     defstruct [
