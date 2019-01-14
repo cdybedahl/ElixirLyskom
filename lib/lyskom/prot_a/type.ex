@@ -63,6 +63,12 @@ defmodule Lyskom.ProtA.Type do
         data: Type.decode_string(data)
       }
     end
+
+    def prot_a(%Type.AuxItem{} = item) do
+      [Integer.to_string(item.tag), Type.AuxItemFlags.prot_a(item.flags),
+      Integer.to_string(item.inherit_limit), Type.hollerith(item.data)]
+      |> Enum.join(" ")
+    end
   end
 
   #############################################################################
@@ -634,7 +640,8 @@ defmodule Lyskom.ProtA.Type do
 
   def bitstring(keys, flags) do
     for n <- keys do
-      Map.get(%{true: ?1, false: ?0}, Map.get(flags, n))
+      Map.get(%{true: ?1, false: ?0, nil: ?0}, Map.get(flags, n))
     end
+    |> List.to_string()
   end
 end
