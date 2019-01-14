@@ -23,6 +23,7 @@ defmodule Lyskom do
 
   def logout(connection) do
     GenServer.call(Lyskom.Server._name(connection), {:logout}, :infinity)
+    Supervisor.stop(Lyskom.Supervisor._name(connection), :shutdown)
   end
 
   def get_info(connection) do
