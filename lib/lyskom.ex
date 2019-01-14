@@ -126,6 +126,10 @@ defmodule Lyskom do
     )
   end
 
+  def create_text(connection, args) do
+    GenServer.call(Lyskom.Server._name(connection), {:create_text, args}, :infinity)
+  end
+
   ## Convenience functions
 
   def text_and_stat(connection, text_no) do

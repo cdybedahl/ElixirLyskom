@@ -621,7 +621,7 @@ defmodule Lyskom.ProtA.Type do
   end
 
   def hollerith(str) when is_binary(str) do
-    "#{String.length(str)}H#{str}"
+    "#{byte_size(str)}H#{str}"
   end
 
   def boolean(true) do
