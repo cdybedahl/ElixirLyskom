@@ -65,8 +65,12 @@ defmodule Lyskom.ProtA.Type do
     end
 
     def prot_a(%Type.AuxItem{} = item) do
-      [Integer.to_string(item.tag), Type.AuxItemFlags.prot_a(item.flags),
-      Integer.to_string(item.inherit_limit), Type.hollerith(item.data)]
+      [
+        Integer.to_string(item.tag),
+        Type.AuxItemFlags.prot_a(item.flags),
+        Integer.to_string(item.inherit_limit),
+        Type.hollerith(item.data)
+      ]
       |> Enum.join(" ")
     end
   end
@@ -117,7 +121,6 @@ defmodule Lyskom.ProtA.Type do
       |> fix()
     end
 
-    # TODO: Add all misc_info types
     defp new(['0', conf_no | tail], acc) do
       new(tail, [{:recpt, to_integer(conf_no)} | acc])
     end
@@ -162,6 +165,19 @@ defmodule Lyskom.ProtA.Type do
 
     defp new(['15', conf_no | tail], acc) do
       new(tail, [{:bcc_recpt, to_integer(conf_no)} | acc])
+    end
+
+    def prot_a({type, data}) do
+      Map.get(
+        %{
+          recpt: "0",
+          cc_recpt: "1",
+          comm_to: "2",
+          footn_to: "4",
+          bcc_recpt: "15"
+        },
+        type
+      ) <> " " <> Integer.to_string(data)
     end
 
     def fix([]) do
