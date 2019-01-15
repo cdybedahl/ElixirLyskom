@@ -142,19 +142,19 @@ defmodule Lyskom do
         if String.starts_with?(aux.data, "text/") do
           case Regex.run(~r"text/[^;]+;charset=(.*)", aux.data) do
             nil ->
-              {text_stat, :iconv.convert("latin1", "utf8", subject),
-               :iconv.convert("latin1", "utf8", text_body)}
+              %{status: text_stat, subject: :iconv.convert("latin1", "utf8", subject),
+               body: :iconv.convert("latin1", "utf8", text_body)}
 
             [_, type] ->
-              {text_stat, :iconv.convert(type, "utf8", subject),
-               :iconv.convert(type, "utf8", text_body)}
+              %{status: text_stat, subject: :iconv.convert(type, "utf8", subject),
+               body: :iconv.convert(type, "utf8", text_body)}
           end
         else
-          {text_stat, :iconv.convert("latin1", "utf8", subject), text_body}
+          %{status: text_stat, subject: :iconv.convert("latin1", "utf8", subject), body: text_body}
         end
 
       nil ->
-        {text_stat, subject, text_body}
+        %{status: text_stat, subject: subject, body: text_body}
     end
   end
 end
