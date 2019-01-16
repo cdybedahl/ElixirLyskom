@@ -23,7 +23,12 @@ defmodule Lyskom do
 
   def logout(connection) do
     GenServer.call(Lyskom.Server._name(connection), {:logout}, :infinity)
-    Supervisor.stop(Lyskom.Supervisor._name(connection), :shutdown)
+  end
+
+  def terminate(connection) do
+    logout(connection)
+    [{pid,nil}] = Registry.lookup(Lyskom.Registry, {:supervisor,connection})
+    DynamicSupervisor.terminate_child(Lyskom.DynamicSupervisor, pid)
   end
 
   def get_info(connection) do
