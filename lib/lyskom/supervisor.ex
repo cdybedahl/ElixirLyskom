@@ -1,5 +1,5 @@
 defmodule Lyskom.Supervisor do
-  use Supervisor
+  use Supervisor, restart: :transient
   require Logger
 
   def _name(ref) do
