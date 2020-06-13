@@ -1,164 +1,105 @@
 defmodule Lyskom do
-  require Logger
-
-  def new(host, port \\ 4894) do
-    name_base = make_ref()
-
-    {:ok, _pid} =
-      DynamicSupervisor.start_child(
-        Lyskom.DynamicSupervisor,
-        {Lyskom.Supervisor, [name_base, host, port]}
-      )
-
-    {:ok, name_base}
+  def new(host \\ "kom.lysator.liu.se", port \\ 4894) do
+    DynamicSupervisor.start_child(Lyskom.Super, {Lyskom.Socket, [host, port]})
   end
 
-  def login(connection, id_number, password, invisible \\ false) do
-    GenServer.call(
-      Lyskom.Server._name(connection),
-      {:login, id_number, password, invisible},
-      :infinity
-    )
+  def login(pid, id_number, password, invisible \\ false),
+    do: server_call(pid, {:login, id_number, password, invisible})
+
+  def logout(pid), do: server_call(pid, {:logout})
+
+  def terminate(pid) do
+    logout(pid)
+    DynamicSupervisor.terminate_child(Lyskom.Super, pid)
   end
 
-  def logout(connection) do
-    GenServer.call(Lyskom.Server._name(connection), {:logout}, :infinity)
-  end
+  def get_info(pid), do: server_call(pid, {:get_info})
 
-  def terminate(connection) do
-    logout(connection)
-    Supervisor.stop(Lyskom.Supervisor._name(connection), :normal)
-  end
+  def get_time(pid), do: server_call(pid, {:get_time})
 
-  def get_info(connection) do
-    GenServer.call(Lyskom.Server._name(connection), {:get_info}, :infinity)
-  end
+  def lookup_z_name(pid, name, want_pers \\ true, want_confs \\ true),
+    do: server_call(pid, {:lookup_z_name, name, want_pers, want_confs})
 
-  def get_time(connection) do
-    GenServer.call(Lyskom.Server._name(connection), {:get_time}, :infinity)
-  end
+  def who_is_on(pid, want_visible \\ true, want_invisible \\ false, active_last \\ 1800),
+    do: server_call(pid, {:who_is_on, want_visible, want_invisible, active_last})
 
-  def lookup_z_name(connection, name, want_pers \\ true, want_confs \\ true) do
-    GenServer.call(
-      Lyskom.Server._name(connection),
-      {:lookup_z_name, name, want_pers, want_confs},
-      :infinity
-    )
-  end
+  def get_conf_stat(pid, conf_no), do: server_call(pid, {:get_conf_stat, conf_no})
 
-  def who_is_on(connection, want_visible \\ true, want_invisible \\ false, active_last \\ 1800) do
-    GenServer.call(
-      Lyskom.Server._name(connection),
-      {:who_is_on, want_visible, want_invisible, active_last},
-      :infinity
-    )
-  end
+  def query_async(pid), do: server_call(pid, {:query_async})
 
-  def get_conf_stat(connection, conf_no) do
-    GenServer.call(Lyskom.Server._name(connection), {:get_conf_stat, conf_no}, :infinity)
-  end
+  def accept_async(pid, request_list), do: server_call(pid, {:accept_async, request_list})
 
-  def query_async(connection) do
-    GenServer.call(Lyskom.Server._name(connection), {:query_async}, :infinity)
-  end
+  def get_text_stat(pid, text_no), do: server_call(pid, {:get_text_stat, text_no})
 
-  def accept_async(connection, request_list) do
-    GenServer.call(Lyskom.Server._name(connection), {:accept_async, request_list}, :infinity)
-  end
+  def get_text(pid, text_no, start_char \\ 0, end_char \\ 1024 * 1024),
+    do: server_call(pid, {:get_text, text_no, start_char, end_char})
 
-  def get_text_stat(connection, text_no) do
-    GenServer.call(Lyskom.Server._name(connection), {:get_text_stat, text_no}, :infinity)
-  end
+  def get_unread_confs(pid, pers_no), do: server_call(pid, {:get_unread_confs, pers_no})
 
-  def get_text(connection, text_no, start_char \\ 0, end_char \\ 1024 * 1024) do
-    GenServer.call(
-      Lyskom.Server._name(connection),
-      {:get_text, text_no, start_char, end_char},
-      :infinity
-    )
-  end
+  def query_read_texts(pid, pers_no, conf_no, want_read_ranges \\ true, max_ranges \\ 1),
+    do: server_call(pid, {:query_read_texts, pers_no, conf_no, want_read_ranges, max_ranges})
 
-  def get_unread_confs(connection, pers_no) do
-    GenServer.call(Lyskom.Server._name(connection), {:get_unread_confs, pers_no}, :infinity)
-  end
+  def local_to_global(pid, conf_no, first_local_no, no_of_existing_texts \\ 255),
+    do: server_call(pid, {:local_to_global, conf_no, first_local_no, no_of_existing_texts})
 
-  def query_read_texts(connection, pers_no, conf_no, want_read_ranges \\ true, max_ranges \\ 1) do
-    GenServer.call(
-      Lyskom.Server._name(connection),
-      {:query_read_texts, pers_no, conf_no, want_read_ranges, max_ranges},
-      :infinity
-    )
-  end
+  def find_next_text_no(pid, start_no), do: server_call(pid, {:find_next_text_no, start_no})
 
-  def local_to_global(connection, conf_no, first_local_no, no_of_existing_texts \\ 255) do
-    GenServer.call(
-      Lyskom.Server._name(connection),
-      {:local_to_global, conf_no, first_local_no, no_of_existing_texts},
-      :infinity
-    )
-  end
+  def get_person_stat(pid, pers_no), do: server_call(pid, {:get_person_stat, pers_no})
 
-  def find_next_text_no(connection, start_no) do
-    GenServer.call(
-      Lyskom.Server._name(connection),
-      {:find_next_text_no, start_no},
-      :infinity
-    )
-  end
+  def mark_as_read(pid, conf_no, text_no) when is_integer(text_no),
+    do: mark_as_read(pid, conf_no, [text_no])
 
-  def get_person_stat(connection, pers_no) do
-    GenServer.call(Lyskom.Server._name(connection), {:get_person_stat, pers_no}, :infinity)
-  end
+  def mark_as_read(pid, conf_no, local_texts) when is_list(local_texts),
+    do: server_call(pid, {:mark_as_read, conf_no, local_texts})
 
-  def mark_as_read(connection, conf_no, text_no) when is_integer(text_no) do
-    mark_as_read(connection, conf_no, [text_no])
-  end
+  def send_message(pid, recipient, message),
+    do: server_call(pid, {:send_message, recipient, message})
 
-  def mark_as_read(connection, conf_no, local_texts) when is_list(local_texts) do
-    GenServer.call(
-      Lyskom.Server._name(connection),
-      {:mark_as_read, conf_no, local_texts},
-      :infinity
-    )
-  end
-
-  def send_message(connection, recipient, message) do
-    GenServer.call(
-      Lyskom.Server._name(connection),
-      {:send_message, recipient, message},
-      :infinity
-    )
-  end
-
-  def create_text(connection, args) do
-    GenServer.call(Lyskom.Server._name(connection), {:create_text, args}, :infinity)
-  end
+  def create_text(pid, args), do: server_call(pid, {:create_text, args})
 
   ## Convenience functions
 
-  def text_and_stat(connection, text_no) do
-    text_stat = get_text_stat(connection, text_no)
-    text_body = get_text(connection, text_no, 0, text_stat.no_of_chars)
+  def listen_for_async(pid, list) do
+    Registry.unregister(Lyskom.AsyncSubscribers, pid)
+    {:ok, _} = Registry.register(Lyskom.AsyncSubscribers, pid, MapSet.new(list))
+    accept_async(pid, list)
+  end
+
+  def text_and_stat(pid, text_no) do
+    text_stat = get_text_stat(pid, text_no)
+    text_body = get_text(pid, text_no, 0, text_stat.no_of_chars)
     [subject, text_body] = String.split(text_body, "\n", parts: 2)
 
     case Enum.find(text_stat.aux_items, &(&1.tag == 1)) do
-      aux = %Lyskom.ProtA.Type.AuxItem{} ->
+      aux = %Lyskom.Type.AuxItem{} ->
         if String.starts_with?(aux.data, "text/") do
           case Regex.run(~r"text/[^;]+;charset=(.*)", aux.data) do
             nil ->
-              %{status: text_stat, subject: :iconv.convert("latin1", "utf8", subject),
-               body: :iconv.convert("latin1", "utf8", text_body)}
+              %{
+                status: text_stat,
+                subject: :iconv.convert("latin1", "utf8", subject),
+                body: :iconv.convert("latin1", "utf8", text_body)
+              }
 
             [_, type] ->
-              %{status: text_stat, subject: :iconv.convert(type, "utf8", subject),
-               body: :iconv.convert(type, "utf8", text_body)}
+              %{
+                status: text_stat,
+                subject: :iconv.convert(type, "utf8", subject),
+                body: :iconv.convert(type, "utf8", text_body)
+              }
           end
         else
-          %{status: text_stat, subject: :iconv.convert("latin1", "utf8", subject), body: text_body}
+          %{
+            status: text_stat,
+            subject: :iconv.convert("latin1", "utf8", subject),
+            body: text_body
+          }
         end
 
       nil ->
         %{status: text_stat, subject: subject, body: text_body}
     end
   end
+
+  defp server_call(pid, payload), do: GenServer.call(pid, {:call, payload}, :infinity)
 end

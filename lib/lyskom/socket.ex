@@ -1,62 +1,101 @@
 defmodule Lyskom.Socket do
-  use GenServer
-  require Logger
+  use GenServer, restart: :temporary
 
-  @me __MODULE__
+  require Logger
+  alias Lyskom.Socket
+
+  defstruct host: "",
+            port: 0,
+            socket: nil,
+            sockbuf: "",
+            tok_data: "",
+            tok_acc: [],
+            tok_state: :start,
+            msg_acc: [],
+            messages: [],
+            next_call_id: 1,
+            outstanding_calls: %{}
 
   ### API
 
-  def start_link([name_base, host, port]) do
-    state = %{host: host, port: port}
-    GenServer.start_link(@me, Map.put(state, :name_base, name_base), name: _name(name_base))
+  def start_link([host, port]) do
+    GenServer.start_link(__MODULE__, %Socket{host: host, port: port})
   end
 
-  def send(msg, name) do
-    GenServer.call(_name(name), {:send, msg})
+  def incoming_data(pid, str) do
+    GenServer.cast(pid, {:incoming_data, str})
   end
 
-  def _name(ref) do
-    {:via, Registry, {Lyskom.Registry, {:socket, ref}}}
+  def incoming_token(pid, token) do
+    GenServer.cast(pid, {:incoming_token, token})
+  end
+
+  def incoming_msg(pid, msg) do
+    GenServer.cast(pid, {:incoming_msg, msg})
+  end
+
+  def send(msg, pid) do
+    :gen_tcp.send(pid, msg)
   end
 
   ### Callbacks
 
-  def init(state = %{host: host, port: port}) do
-    {:ok, socket} = :gen_tcp.connect(host, port, [:binary, active: false])
-    :ok = :gen_tcp.send(socket, "A6HElixir")
-    {:ok, "LysKOM\n"} = :gen_tcp.recv(socket, 0)
-    :ok = :inet.setopts(socket, active: :once)
-    Logger.debug("Connection to server established.")
-    {:ok, Map.put(state, :socket, socket), {:continue, :try_login}}
-  end
+  @impl true
+  def init(state) do
+    case :gen_tcp.connect(
+           to_charlist(state.host),
+           state.port,
+           [:binary, active: false]
+         ) do
+      {:ok, socket} ->
+        :ok = :gen_tcp.send(socket, "A6HElixir")
+        {:ok, "LysKOM\n"} = :gen_tcp.recv(socket, 0)
+        :ok = :inet.setopts(socket, active: :once)
+        {:ok, %Socket{state | socket: socket}}
 
-  ## Handle calls
-
-  def handle_call({:send, msg}, _from, state = %{socket: socket}) do
-    :ok = :gen_tcp.send(socket, msg)
-    # Logger.debug("Sent: #{msg}")
-    {:reply, :ok, state}
-  end
-
-  ## Handle random messages
-
-  def handle_info({:tcp, socket, msg}, state = %{socket: socket, name_base: name_base}) do
-    # Logger.debug("Incoming: #{msg}")
-    Lyskom.ProtA.Tokenize.incoming(msg, name_base)
-    :ok = :inet.setopts(socket, active: :once)
-    {:noreply, state}
-  end
-
-  ## Handle post-initialization
-  def handle_continue(:try_login, state) do
-    case Lyskom.Cache.logged_in?(state.name_base) do
-      args when is_list(args) ->
-        spawn(Lyskom, :login, args)
-
-      nil ->
-        true
+      {:error, msg} ->
+        {:stop, msg}
     end
+  end
 
+  ## Parser-related functions.
+
+  @impl true
+  def handle_cast({:incoming_data, msg}, state) do
+    {:noreply, Lyskom.Tokenize.incoming(state, msg)}
+  end
+
+  def handle_cast({:incoming_token, token}, state) do
+    case token do
+      :msgend ->
+        msg =
+          state.msg_acc
+          |> Enum.reverse()
+          |> Lyskom.Tokenize.process_arrays()
+
+        incoming_msg(self(), msg)
+        {:noreply, %Socket{state | msg_acc: []}}
+
+      _ ->
+        {:noreply, Map.update!(state, :msg_acc, fn t -> [token | t] end)}
+    end
+  end
+
+  def handle_cast({:incoming_msg, msg}, state) do
+    {:noreply, Lyskom.Responses.handle(msg, state)}
+  end
+
+  ## Socket-related functions.
+  @impl true
+  def handle_info({:tcp, socket, msg}, state = %Socket{socket: socket}) do
+    :ok = :inet.setopts(socket, active: :once)
+    incoming_data(self(), msg)
     {:noreply, state}
+  end
+
+  ## External-API-related functions
+  @impl true
+  def handle_call({:call, payload}, from, state) do
+    {:noreply, Lyskom.Calls.send(payload, from, state)}
   end
 end

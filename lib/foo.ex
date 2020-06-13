@@ -14,29 +14,29 @@ defmodule Foo do
       {:async_deleted_text, no, _stat} ->
         IO.puts("Text number #{no} was deleted.")
 
-      {:async_login, _user, _session} ->
-        # IO.puts("User #{username(connection, user)} logged in.")
+      {:async_login, user, _session} ->
+        IO.puts("User #{username(connection, user)} logged in.")
         true
 
-      {:async_logout, _user, _session} ->
-        # IO.puts("User #{username(connection, user)} logged out.")
+      {:async_logout, user, _session} ->
+        IO.puts("User #{username(connection, user)} logged out.")
         true
 
       {:async_sync_db} ->
-        # IO.puts("Databasen synkas. Eller har synkat klart.")
+        IO.puts("Databasen synkas. Eller har synkat klart.")
         true
 
-      {:async_i_am_on, pers_no, 6, _session_no, what, _name} ->
+      {:async_i_am_on, pers_no, conf_no, _session_no, what, _name} ->
         [
-          "#{username(connection, pers_no)} i #{username(connection, 6)}: ",
+          "#{username(connection, pers_no)} i #{username(connection, conf_no)}: ",
           :white,
           "#{what}"
         ]
         |> IO.ANSI.format()
         |> IO.puts()
 
-      {:async_i_am_on, _pers_no, _conf_no, _session_no, _what, _name} ->
-        true
+      # {:async_i_am_on, _pers_no, _conf_no, _session_no, _what, _name} ->
+      #  true
 
       {:async_text_aux_changed, text_no, _deleted, _added} ->
         [:green, "Changed aux_info for text ", :white, "#{text_no}"]
@@ -98,9 +98,26 @@ defmodule Foo do
   def start do
     {:ok, connection} = Lyskom.new('kom.lysator.liu.se')
     :ok = Lyskom.login(connection, 2429, "gnapp", true)
-    pid = spawn_link(Foo, :async_printer, [connection])
-    Lyskom.AsyncHandler.add_client(pid, connection)
-    Lyskom.accept_async(connection, [5, 6, 8, 9, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22])
-    connection
+
+    Lyskom.listen_for_async(connection, [
+      5,
+      6,
+      8,
+      9,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22
+    ])
+
+    async_printer(connection)
   end
 end

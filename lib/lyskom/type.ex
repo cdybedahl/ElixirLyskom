@@ -1,4 +1,4 @@
-defmodule Lyskom.ProtA.Type do
+defmodule Lyskom.Type do
   alias __MODULE__
   require Logger
 
