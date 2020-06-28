@@ -210,7 +210,7 @@ defmodule Lyskom.Type do
 
     def new([name, type, no]) do
       %Type.ConfZInfo{
-        name: name,
+        name: Type.decode_string(name),
         conf_type: Type.ConfType.new(type),
         conf_no: to_integer(no)
       }
@@ -609,7 +609,7 @@ defmodule Lyskom.Type do
       ] = list
 
       %Type.Person{
-        username: uname,
+        username: Type.decode_string(uname),
         privileges: Type.PrivBits.new(privs),
         flags: Type.PersonalFlags.new(flags),
         last_login: Type.Time.new(last_login),
