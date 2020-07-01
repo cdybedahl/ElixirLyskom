@@ -61,8 +61,18 @@ defmodule Lyskom do
 
   def listen_for_async(pid, list) do
     Registry.unregister(Lyskom.AsyncSubscribers, pid)
-    {:ok, _} = Registry.register(Lyskom.AsyncSubscribers, pid, MapSet.new(list))
-    accept_async(pid, list)
+
+    cleaned_list =
+      Enum.map(list, fn x ->
+        if is_integer(x) do
+          x
+        else
+          Lyskom.Constants.async(x)
+        end
+      end)
+
+    {:ok, _} = Registry.register(Lyskom.AsyncSubscribers, pid, MapSet.new(cleaned_list))
+    accept_async(pid, cleaned_list)
   end
 
   def text_and_stat(pid, text_no) do
