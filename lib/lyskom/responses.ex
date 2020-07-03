@@ -52,6 +52,10 @@ defmodule Lyskom.Responses do
     GenServer.reply(from, Type.Conference.new(conflist))
   end
 
+  def response(:get_uconf_stat, :success, from, uconflist, _call_args) do
+    GenServer.reply(from, Type.UConference.new(uconflist))
+  end
+
   def response(:query_async, :success, from, [asynclist], _call_args) do
     GenServer.reply(from, Enum.map(asynclist, fn [n] -> List.to_integer(n) end))
   end

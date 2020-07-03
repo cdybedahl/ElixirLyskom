@@ -47,6 +47,10 @@ defmodule Lyskom.Calls do
     prot_a_call(:get_conf_stat, 91, from, [conf_no], state)
   end
 
+  def send({:get_uconf_stat, conf_no}, from, state) do
+    prot_a_call(:get_uconf_stat, 78, from, [conf_no], state)
+  end
+
   def send({:query_async}, from, state) do
     prot_a_call(:query_async, 81, from, [], state)
   end
@@ -116,7 +120,7 @@ defmodule Lyskom.Calls do
   # Helper functions ##########################################################
   defp add_call_to_state(state = %Lyskom.Socket{next_call_id: next_id}, call_args) do
     state
-    |> Map.update!(:next_call_id, fn n -> n+1 end)
+    |> Map.update!(:next_call_id, fn n -> n + 1 end)
     |> Map.update!(:outstanding_calls, fn m -> Map.put(m, next_id, call_args) end)
   end
 

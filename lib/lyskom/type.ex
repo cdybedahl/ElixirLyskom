@@ -352,6 +352,27 @@ defmodule Lyskom.Type do
   end
 
   #############################################################################
+  defmodule UConference do
+    defstruct [
+      :name,
+      :type,
+      :highest_local_no,
+      :nice
+    ]
+
+    def new(list) do
+      [name, type, highest_local_no, nice] = list
+
+      %Type.UConference{
+        name: Type.decode_string(name),
+        type: Type.ConfType.new(type),
+        highest_local_no: to_integer(highest_local_no),
+        nice: to_integer(nice)
+      }
+    end
+  end
+
+  #############################################################################
   defmodule Time do
     def new([sec, min, hour, day, mon, year, _dow, _doy, _dst]) do
       Timex.to_datetime(

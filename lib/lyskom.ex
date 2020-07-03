@@ -25,6 +25,8 @@ defmodule Lyskom do
 
   def get_conf_stat(pid, conf_no), do: server_call(pid, {:get_conf_stat, conf_no})
 
+  def get_uconf_stat(pid, conf_no), do: server_call(pid, {:get_uconf_stat, conf_no})
+
   def query_async(pid), do: server_call(pid, {:query_async})
 
   def accept_async(pid, request_list), do: server_call(pid, {:accept_async, request_list})
