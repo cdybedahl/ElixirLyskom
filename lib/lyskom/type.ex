@@ -457,7 +457,7 @@ defmodule Lyskom.Type do
         last_time_read: Time.new(ltr),
         conference: to_integer(conf),
         priority: to_integer(prio),
-        read_ranges: Enum.map(ranges, fn [m, n] -> {to_integer(m), to_integer(n)} end),
+        read_ranges: Enum.map(ranges, fn [m, n] -> to_integer(m)..to_integer(n) end),
         added_by: to_integer(by),
         added_at: Time.new(aa),
         type: Type.MembershipType.new(type)
