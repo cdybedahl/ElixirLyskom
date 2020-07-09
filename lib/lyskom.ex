@@ -78,38 +78,48 @@ defmodule Lyskom do
   end
 
   def text_and_stat(pid, text_no) do
-    text_stat = get_text_stat(pid, text_no)
-    text_body = get_text(pid, text_no, 0, text_stat.no_of_chars)
-    [subject, text_body] = String.split(text_body, "\n", parts: 2)
+    case get_text_stat(pid, text_no) do
+      {:error, :no_such_text, _params} ->
+        nil
 
-    case Enum.find(text_stat.aux_items, &(&1.tag == 1)) do
-      aux = %Lyskom.Type.AuxItem{} ->
-        if String.starts_with?(aux.data, "text/") do
-          case Regex.run(~r"text/[^;]+;charset=(.*)", aux.data) do
-            nil ->
+      text_stat ->
+        text_body = get_text(pid, text_no, 0, text_stat.no_of_chars)
+        [subject, text_body] = String.split(text_body, "\n", parts: 2)
+
+        case Enum.find(text_stat.aux_items, &(&1.tag == 1)) do
+          aux = %Lyskom.Type.AuxItem{} ->
+            if String.starts_with?(aux.data, "text/") do
+              case Regex.run(~r"text/[^;]+;charset=(.*)", aux.data) do
+                nil ->
+                  %{
+                    status: text_stat,
+                    subject: :iconv.convert("latin1", "utf8", subject),
+                    body: :iconv.convert("latin1", "utf8", text_body)
+                  }
+
+                [_, type] ->
+                  %{
+                    status: text_stat,
+                    subject: :iconv.convert(type, "utf8", subject),
+                    body: :iconv.convert(type, "utf8", text_body)
+                  }
+              end
+            else
               %{
                 status: text_stat,
                 subject: :iconv.convert("latin1", "utf8", subject),
-                body: :iconv.convert("latin1", "utf8", text_body)
+                body: text_body
               }
+            end
 
-            [_, type] ->
-              %{
-                status: text_stat,
-                subject: :iconv.convert(type, "utf8", subject),
-                body: :iconv.convert(type, "utf8", text_body)
-              }
-          end
-        else
-          %{
-            status: text_stat,
-            subject: :iconv.convert("latin1", "utf8", subject),
-            body: text_body
-          }
+          nil ->
+            # In the absence of a content_type, assume ISO-8859-1
+            %{
+              status: text_stat,
+              subject: :iconv.convert("latin1", "utf8", subject),
+              body: :iconv.convert("latin1", "utf8", text_body)
+            }
         end
-
-      nil ->
-        %{status: text_stat, subject: subject, body: text_body}
     end
   end
 
