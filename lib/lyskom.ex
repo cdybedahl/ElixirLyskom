@@ -88,8 +88,8 @@ defmodule Lyskom do
 
         case Enum.find(text_stat.aux_items, &(&1.tag == 1)) do
           aux = %Lyskom.Type.AuxItem{} ->
-            if String.starts_with?(aux.data, "text/") do
-              case Regex.run(~r"text/[^;]+;charset=(.*)", aux.data) do
+            if String.starts_with?(aux.data, ["text/", "x-kom/text"]) do
+              case Regex.run(~r";charset=(.*)", aux.data) do
                 nil ->
                   %{
                     status: text_stat,
