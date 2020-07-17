@@ -117,6 +117,24 @@ defmodule Lyskom.Calls do
     prot_a_call(:create_text, 86, from, create_text(args), state)
   end
 
+  def send({:create_text, content, misc_items, aux_items}, from, state) do
+    prot_a_call(
+      :create_text,
+      86,
+      from,
+      [
+        Type.hollerith(content),
+        Type.array(misc_items, &Type.MiscInfo.prot_a/1),
+        Type.array(aux_items, &Type.AuxItem.prot_a/1)
+      ],
+      state
+    )
+  end
+
+  def send({:set_user_area, pers_no, user_area}, from, state) do
+    prot_a_call(:set_user_area, 57, from, [pers_no, user_area], state)
+  end
+
   # Helper functions ##########################################################
   defp add_call_to_state(state = %Lyskom.Socket{next_call_id: next_id}, call_args) do
     state

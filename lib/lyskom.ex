@@ -59,6 +59,12 @@ defmodule Lyskom do
 
   def create_text(pid, args), do: server_call(pid, {:create_text, args})
 
+  def create_text(pid, content, misc_items, aux_items),
+    do: server_call(pid, {:create_text, content, misc_items, aux_items})
+
+  def set_user_area(pid, pers_no, user_area),
+    do: server_call(pid, {:set_user_area, pers_no, user_area})
+
   ## Convenience functions
 
   def listen_for_async(pid, list) do
@@ -122,6 +128,11 @@ defmodule Lyskom do
         end
     end
   end
+
+  def get_user_settings(pid, pers_no), do: Lyskom.UserArea.get_user_settings(pid, pers_no)
+
+  def store_user_settings(pid, pers_no, term),
+    do: Lyskom.UserArea.store_user_settings(pid, pers_no, term)
 
   defp server_call(pid, payload), do: GenServer.call(pid, {:call, payload}, :infinity)
 end

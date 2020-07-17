@@ -104,6 +104,10 @@ defmodule Lyskom.Responses do
     GenServer.reply(from, List.to_integer(text_no))
   end
 
+  def response(:set_user_area, :success, from, [], _call_args) do
+    GenServer.reply(from, :ok)
+  end
+
   # Generic failure response handler
   def response(_call_type, :failure, from, [code | args], _call_args) do
     GenServer.reply(from, {:error, error_code(code), args})
