@@ -44,7 +44,10 @@ defmodule Lyskom.UserArea do
               |> :erlang.term_to_binary()
               |> Base.encode64()
 
-            body = Map.put(%{}, @user_area_key, data) |> assemble()
+            body =
+              Map.put(%{}, @user_area_key, data)
+              |> assemble()
+
             text_no = create_text(pid, body, [], [])
             set_user_area(pid, pers_no, text_no)
 
