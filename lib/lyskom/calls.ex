@@ -135,6 +135,18 @@ defmodule Lyskom.Calls do
     prot_a_call(:set_user_area, 57, from, [pers_no, user_area], state)
   end
 
+  def send({:change_conference, conf_no}, from, state) do
+    prot_a_call(:change_conference, 2, from, [conf_no], state)
+  end
+
+  def send(:user_active, from, state) do
+    prot_a_call(:user_active, 82, from, [], state)
+  end
+
+  def send({:change_what_i_am_doing, what}, from, state) do
+    prot_a_call(:change_what_i_am_doing, 4, from, [hollerith(encode_string(what))], state)
+  end
+
   # Helper functions ##########################################################
   defp add_call_to_state(state = %Lyskom.Socket{next_call_id: next_id}, call_args) do
     state

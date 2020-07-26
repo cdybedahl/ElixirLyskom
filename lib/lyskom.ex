@@ -65,6 +65,15 @@ defmodule Lyskom do
   def set_user_area(pid, pers_no, user_area),
     do: server_call(pid, {:set_user_area, pers_no, user_area})
 
+  # TODO: Call 2.
+  def change_conference(pid, conf_no), do: server_call(pid, {:change_conference, conf_no})
+
+  # TODO: Call 82
+  def user_active(pid), do: server_call(pid, :user_active)
+
+  # TODO: Call 4
+  def change_what_i_am_doing(pid, what), do: server_call(pid, {:change_what_i_am_doing, what})
+
   ## Convenience functions
 
   def listen_for_async(pid, list) do

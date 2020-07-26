@@ -104,9 +104,12 @@ defmodule Lyskom.Responses do
     GenServer.reply(from, List.to_integer(text_no))
   end
 
-  def response(:set_user_area, :success, from, [], _call_args) do
-    GenServer.reply(from, :ok)
-  end
+  def response(:set_user_area, :success, from, [], _call_args), do: GenServer.reply(from, :ok)
+  def response(:change_conference, :success, from, [], _call_args), do: GenServer.reply(from, :ok)
+  def response(:user_active, :success, from, [], _call_args), do: GenServer.reply(from, :ok)
+
+  def response(:change_what_i_am_doing, :success, from, [], _call_args),
+    do: GenServer.reply(from, :ok)
 
   # Generic failure response handler
   def response(_call_type, :failure, from, [code | args], _call_args) do
